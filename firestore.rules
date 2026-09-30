@@ -1,0 +1,108 @@
+rules_version = '2';
+
+// ChaiCart Live security rules.
+// Students sign in anonymously and may only write their own profile and their own (or their team's)
+// submission for the activity that is currently open. Facilitators and captains are listed in /admins/{email}.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email != null
+        && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+    }
+
+    function validTeam(teamId) {
+      return teamId is string && teamId.matches('^(mumbai|chennai|pune|delhi)-1[a-f]$');
+    }
+
+    match /admins/{email} {
+      allow read: if signedIn() && request.auth.token.email == email;
+      allow write: if false;
+    }
+
+    match /sessions/{sid} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+
+      function session() {
+        return get(/databases/$(database)/documents/sessions/$(sid)).data;
+      }
+
+      function myTeam() {
+        return get(/databases/$(database)/documents/sessions/$(sid)/students/$(request.auth.uid)).data.teamId;
+      }
+
+      match /public/{docId} {
+        allow read: if signedIn();
+        allow write: if isAdmin();
+      }
+
+      match /private/{docId} {
+        allow read, write: if isAdmin();
+      }
+
+      match /ledger/{entryId} {
+        allow read, write: if isAdmin();
+      }
+
+      match /students/{uid} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['name', 'semester', 'branch', 'teamId', 'role', 'joinedAt'])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() > 1 && request.resource.data.name.size() <= 60
+          && request.resource.data.branch is string && request.resource.data.branch.size() <= 60
+          && request.resource.data.semester in ['5', '7']
+          && request.resource.data.role in ['CEO', 'CTO', 'SRE', 'CFO', 'COO']
+          && validTeam(request.resource.data.teamId);
+        allow update: if isAdmin()
+          || (signedIn() && request.auth.uid == uid
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'branch', 'role']));
+        allow delete: if isAdmin();
+      }
+
+      match /submissions/{subId} {
+        allow read: if isAdmin()
+          || (signedIn() && (resource == null
+              || resource.data.uid == request.auth.uid
+              || resource.data.teamId == myTeam()));
+
+        allow write: if isAdmin();
+
+        allow create, update: if signedIn() && validSubmission(subId);
+
+        function validSubmission(subId) {
+          let data = request.resource.data;
+          let s = session();
+          let team = myTeam();
+          let activity = data.activity;
+          return activity is string
+            && s.currentActivity == activity
+            && s.state.phase == 'open'
+            && data.uid == request.auth.uid
+            && data.teamId == team
+            && (subId == activity + '__' + request.auth.uid || subId == activity + '__' + team)
+            && data.byName is string && data.byName.size() <= 60
+            && (resource == null || resource.data.get('locked', false) != true)
+            && (!data.keys().hasAny(['choice']) || (validTeam(data.choice) && data.choice != team))
+            && indexedOk(s.state.get('indexedField', null), string(s.state.index));
+        }
+
+        // Quiz answers and budget choices may only gain the current index, and never change once set.
+        function indexedOk(field, idx) {
+          return field == null
+            || (resource == null
+                ? request.resource.data.get(field, {}).keys().hasOnly([idx])
+                : request.resource.data.get(field, {}).diff(resource.data.get(field, {})).affectedKeys().hasOnly([idx])
+                  && !(idx in resource.data.get(field, {})));
+        }
+      }
+    }
+  }
+}

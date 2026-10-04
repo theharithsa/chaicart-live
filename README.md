@@ -1,125 +1,94 @@
 # ChaiCart Live
 
-The real-time companion app for the [ChaiCart Cloud Workshop](https://github.com/theharithsa/chaicart-cloud-workshop). Students join on their phones; the facilitator runs every activity from a console; a projector screen shows live results. All data is stored in Firebase and updates instantly on every device.
+The paperless student and captain app for the [ChaiCart Cloud Workshop](https://theharithsa.github.io/chaicart-cloud-workshop/). Hosted at [chaicloud-workshop.web.app](https://chaicloud-workshop.web.app/). The [Azure ordering/fault demo](https://chaicart-workshop-vh-20261003.azurewebsites.net/) remains a separate app, linked from student Resources.
 
-It runs alongside the slide decks and printed materials. Anything physical (Human Kitchen, Paper Plane Factory, Follow the Order) stays physical, and the print kit is the backup if the Wi-Fi fails.
+## Student flow
 
-## What's in it
+1. Scan the projector QR or enter the session code.
+2. **Sign in with Google**. Use your captain’s team code; choose semester, branch, certificate name and an available role. Five roles reserve five places atomically.
+3. **Live activity** follows the facilitator. The **COO** submits scored team answers; teammates discuss and can view the saved answer. Individual surveys, plans and polls remain individual.
+4. **My workshop** contains both agendas, roster, submissions, captain feedback, credit history, networking and resources. Drafts stay on the device through refresh. “Pending server confirmation” is not a successful submission.
+5. Networking: LinkedIn in Day1 opening, GitHub after lunch, X launched Day2 and continuing all day. Each completed team activity receives +100 once after captain approval; maximum +300. Existing accounts/connections count.
+6. Optional X posts/photos use **#ChaiCartCloudWorkshop**. Ask permission before sharing someone’s photo. Submit your best post link before closing. Captains shortlist; facilitator awards one individual for learning value, creativity and workshop spirit, not likes. No extra team credits.
+7. Download notes and the personal90-day plan. Certificates appear after the facilitator issues them and use the workshop date.
 
-| Route | Who | What it does |
-|---|---|---|
-| `#/` and `#/join?s=CODE` | Students | Join with name, semester, branch, team (from the table card) and role |
-| `#/play` | Students | Team credits and region rank, plus whatever activity is live right now |
-| `#/certificate` | Students | Personal certificate, printable or saveable as PDF |
-| `#/console` | Facilitator, captains | Launch, lock and reveal activities; timers; scoring; leaderboard; student list |
-| `#/screen` | Projector | Join QR code, live leaderboard, poll and quiz results, hints and timers |
+## Paperless activities
 
-### Activities
+| Day1 | Day2 |
+|---|---|
+| Pre-survey and Cloud or Not? poll | Guess the Downtime: team numeric estimates |
+| Timeline ordering; first correct in each region | Murder mystery evidence, hints and final accusation |
+| Service model classification; +5/correct | Full Treasure Hunt worksheet with proof and query copying |
+| Deployment debate and Shark Tank pitch/vote | Error Budget Poker with immutable staff-issued rolls |
+| Digital Bingo with facilitator-called terms | Postmortem and captain judging |
+| Digital architecture: components, flow and rationale | **Digital Delivery Factory** replaces paper planes |
+| Human Kitchen station cards and timed order handoffs | Bill Shock using the frozen architecture |
+| Gallery case studies and feedback notes | Follow the Order station cards/tokens |
+| Team recap quiz: +10 per correct team answer | Career cards, 90-day plan, team quiz, Demo Day vote and feedback |
 
-| Activity | Day | Type | Scoring |
-|---|---|---|---|
-| Pre-workshop survey | 1 | Individual form | — |
-| Cloud or Not? | 1 | Live poll | — |
-| Where Should They Live? | 1 | Team form, one scenario per team | Facilitator awards |
-| Shark Tank region vote | 1 | Team vote within region | Region winners +50 |
-| Architecture Lego: our design | 1 | Team checklist (feeds Day 2 games) | — |
-| Day 1 recap quiz | 1 | Individual quiz | 10 per question, scaled by team accuracy |
-| Guess the Downtime | 2 | Individual quiz | 5 per question |
-| Who Killed Checkout? | 2 | Evidence on phones, live hints, one accusation per team | Automatic, with first-correct bonus |
-| Observability Treasure Hunt | 2 | Team self-marked total | Applied from form |
-| Error Budget Poker | 2 | Team decisions with dice rolls | Automatic, uses the architecture checklist |
-| Blameless postmortem | 2 | Team form | Facilitator awards |
-| Paper Plane Factory | 2 | Team results | Region best +50 |
-| Cloud Bill Shock | 2 | 3 cards dealt per team, pick controls for refunds | Automatic, uses the architecture checklist |
-| My 90-day plan | 2 | Individual form | — |
-| Demo Day region vote | 2 | Team vote within region | Picks finalists |
-| Day 2 recap quiz | 2 | Individual quiz | 10 per question |
-| Post-workshop feedback | 2 | Individual form | — |
+Architecture is reviewed and frozen before Day2 games. No chart-paper proof is needed. Human Kitchen and Follow the Order retain people-based demonstrations with digital station cards/tickets. Digital Delivery Factory uses six virtual releases: a three-minute sequential COO round, then a three-minute pipeline with CEO Plan, CTO Build, SRE Test and COO Deploy. Metrics are teaching proxies for DORA; failed tests are not literally production incidents. Regional winner: most successful round2 releases, fewer failures, then lower median lead time; +50.
 
-Paper-scored activities (Timeline, Service sort, Bingo, Kitchen, Gallery) are entered in **Console → Leaderboard → Enter a whole round**.
+## Facilitator and captain flow
 
-## Tech
+- `#/console`: Google sign-in restricted to facilitator allowlist. Setup creates a session, its team codes and protected key copies. Set the workshop date; assign captain Google emails to regions.
+- Share each team’s code from **Workshop** and share `#/captain?s=SESSION` with captains.
+- `#/captain`: scoped six-team roster, responses, rubrics, networking approvals, feedback and X shortlists. Captains propose credits; they cannot change global activities or another region’s credits.
+- **Run** launches/locks/reveals activities and timers. **Workshop** applies captain approvals once, freezes architectures, calls Bingo clues, assigns station volunteers, starts/stops Factory rounds, records awards and issues certificates.
+- Bingo awards are capped at three teams, Gallery at four, and Timeline at one winner per region. Confirm submission timestamps when selecting first-place awards.
+- Poker: issue staff rolls for each card before students choose. Rolls and frozen architecture documents cannot be overwritten through the client.
+- **Leaderboard** provides exceptional manual adjustments and correction of the latest uncorrected batch. Corrections append compensating ledger entries; previous records remain.
+- `#/screen?s=SESSION`: projector join QR, leaderboard, activity totals, released answers and hints. Personal emails and private responses are not displayed.
+- Export students/form responses in the console after the workshop. Retain only what you need; Firebase console deletion is a separate deliberate cleanup step.
 
-- React 19, TypeScript, Vite; hash routing, so it runs on any static host.
-- Firebase Authentication: students sign in anonymously; facilitators with Google.
-- Cloud Firestore with offline cache and real-time listeners.
-- No Cloud Functions: runs on the free **Spark** plan. The console does the marking.
+## Setup and local development
 
-### Staying within the free tier
+Node24 recommended. Firebase Google sign-in must be enabled and your hosting/local domain authorized. Copy `.env.example` to `.env.local` and enter the Firebase **public web configuration**, not a service-account credential.
 
-Every screen reads the leaderboard from **one document** (`sessions/{id}/public/leaderboard`), so a scoring round costs about 120 reads rather than 2,880. A full two-day workshop for 120 students stays well inside Spark's 50,000 reads and 20,000 writes per day.
-
-## Firebase setup (one time)
-
-1. **Create a project** at [console.firebase.google.com](https://console.firebase.google.com). Analytics is not needed.
-2. **Authentication → Sign-in method:** enable **Anonymous** and **Google**.
-3. **Firestore Database → Create database:** production mode, location `asia-south1` (Mumbai).
-4. **Project settings → Your apps → Add app → Web.** Copy the config values.
-5. In this folder:
-   ```bash
-   cp .env.example .env.local     # then paste the six values
-   npm install
-   ```
-6. **Deploy the security rules:**
-   ```bash
-   npx firebase-tools login
-   npx firebase-tools use --add          # pick your project
-   npx firebase-tools deploy --only firestore:rules
-   ```
-7. **Register facilitators and captains:** in Firestore, create a collection `admins` with one document per Google account. The **document ID is the email address**; the fields don't matter, for example `role: "facilitator"`.
-8. **Authorised domains** (Authentication → Settings): add the domain you host on, for example `theharithsa.github.io`. `localhost` and your `*.web.app` domain are there already.
-
-## Run locally
-
-```bash
-npm run dev        # http://localhost:5173
-```
-
-Open `#/console`, sign in with an admin Google account, and create a session in **Setup** (for example `CHAI26`). Scan the QR code from a phone, or open `#/join?s=CHAI26` in a private window, to join as a student.
-
-## Deploy
-
-**Firebase Hosting** (recommended; same project, free):
-
-```bash
+```sh
+npm ci
+npm run dev
 npm run build
-npx firebase-tools deploy --only hosting
+npm run lint
 ```
 
-**GitHub Pages or any static host:** `npm run build` and publish the `dist` folder. The app uses relative paths and hash routing, so it works from a sub-path. Remember to add the domain to Firebase authorised domains.
+Facilitators are existing `admins/{Google email}` documents with `role: "facilitator"` (legacy documents without a role remain facilitator entries). Captains are **per-session** `sessions/{id}/staff/{email}` records created by the facilitator in Setup; do not add new captains as global admins.
 
-## On the day
+Answer keys are seed-only source in `src/admin/keys.ts` and `scripts/activity-keys.json`. Browser code imports only types; no unrevealed quiz/mystery key is shipped in the production bundles. The authenticated seed script writes protected Firestore content and initializes legacy teams without replacing responses or credits.
 
-1. Laptop screen: `#/console`. Projector: **Open projector screen** from the console (same browser, so it is already signed in).
-2. Put the screen on **Join QR** while students arrive and join.
-3. In **Run**, select an activity, press **Launch on phones**, and every phone switches to it. Use **Lock**, **Reveal**, **Next** and the timers.
-4. Press the scoring button in each panel once the activity is finished. Each activity is marked **scored** in the list so it isn't applied twice; **Leaderboard → Undo last change** reverses the most recent scoring.
-5. After the workshop, export students and form responses as CSV from the console.
-
-## Security model
-
-- Students can create only their own profile, and write only their own (or their team's) submission for the activity that is **currently open**. Quiz answers and poker choices can only be added for the current question and can't be changed afterwards. Accusations are final once submitted.
-- Only admins can change sessions, credits and the leaderboard, or read the ledger and private data.
-- Answer keys live in a separate code chunk loaded only by the console and are never fetched by the student app. A determined student could still find that file by URL; for stronger secrecy, move the keys into a Firestore document under `private/`.
-- The Firebase web config in `.env.local` is not a secret; access is controlled by the rules in [`firestore.rules`](firestore.rules).
-
-## Data and privacy
-
-Only name, semester, branch, team and role are stored for students, plus their responses. Export what you need after the workshop, then delete the session from the Firestore console.
-
-## Project layout
-
-```
-src/
-  content/     teams, activities, mystery evidence, budget and bill-shock rules
-  admin/       answer keys (console only)
-  lib/         Firestore hooks, submissions, credits ledger
-  pages/       student app: Join, Play, Certificate, student/* activity views
-  console/     facilitator console, projector screen, per-activity panels
-firestore.rules   security rules
-firebase.json     rules and hosting config
+```sh
+npx firebase-tools login
+# FIREBASE_TOOLS_LIB points to the installed firebase-tools/lib directory.
+FIREBASE_TOOLS_LIB=/path/to/firebase-tools/lib node scripts/firebase-rest.mjs backup-rules
+FIREBASE_TOOLS_LIB=/path/to/firebase-tools/lib node scripts/seed-workshop.mjs
 ```
 
-## License
+The script backs up session/roster data locally in `/tmp` and reports legacy role collisions for facilitator review. Never commit those backups or credentials. Run this when importing existing sessions or refreshing answer keys. Newly created sessions copy the protected global content automatically.
 
-MIT
+## Rules testing and release
+
+Firestore rules enforce Google identity, team scope, COO submissions, current activity/question, payload schemas, immutable final answers, timestamps, captain regions, factory transitions and station handoffs. Emails and private surveys/plans are not in team-visible documents.
+
+Java21 is needed by the Firestore emulator:
+
+```sh
+npx firebase-tools emulators:exec --project demo-chaicart --only firestore "node --test test/rules.test.mjs"
+npm run build
+npx firebase-tools hosting:channel:deploy paperless-review --project chaicloud-workshop
+npx firebase-tools deploy --only firestore:rules,firestore:indexes,hosting --project chaicloud-workshop
+```
+
+Preview Hosting uses the configured Firebase backend; it does not create a separate rules environment. Emulator tests use a demo project and never touch production. CI runs build, lint and the rule/integration suite, including 120 Google student identities joining24 teams and competing credit transactions.
+
+The rules live in a project shared with the Azure demo. They preserve `/admins` reads and do not affect the Admin SDK’s IAM access. Back up the current release before deploying; restore that source with Firebase CLI if rollback is needed. Keep the previous Hosting release available for rollback too.
+
+## Existing anonymous students
+
+Google sign-in links an anonymous account in place, keeping its UID/profile/responses. If that Google account already belongs to another UID, the app stops rather than discarding data. A facilitator must export and migrate the existing record deliberately. No automatic name/email-based merging occurs.
+
+## Connectivity and limits
+
+Venue Wi-Fi and a fallback hotspot are needed for live scoring. Cached data/drafts help through short interruptions; role reservations and score transactions require a connection. Do not treat pending offline writes as accepted final answers. First Google sign-in also needs internet. The app does not promise a fully offline workshop.
+
+Firebase Auth + Firestore + Hosting; no Cloud Functions or photo uploads are introduced. X entries store public post links. Keep listeners scoped, monitor reads/writes during rehearsal, and confirm actual quotas rather than assuming the expanded workshop fits a free tier.
+
+See [the plan and audit](docs/PAPERLESS-APP-PLAN.md) and [release checks](docs/RELEASE-CHECKS.md).

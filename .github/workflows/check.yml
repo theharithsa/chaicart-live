@@ -1,0 +1,24 @@
+name: Check workshop app
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: demo-key
+          VITE_FIREBASE_AUTH_DOMAIN: demo-chaicart.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: demo-chaicart
+          VITE_FIREBASE_APP_ID: demo-app
+      - run: npm run lint
+      - run: npx firebase-tools emulators:exec --project demo-chaicart --only firestore "node --test test/rules.test.mjs"

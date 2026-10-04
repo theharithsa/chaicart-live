@@ -1,0 +1,168 @@
+{
+  "timeline": [
+    "event-7b2dd0834c",
+    "event-d2124d9099",
+    "event-e2fef49a7d",
+    "event-358156296f",
+    "event-567d7a1343",
+    "event-3dff45d6e1",
+    "event-03de7764a9",
+    "event-6e78508bef",
+    "event-92c227cd34",
+    "event-6fc718f566",
+    "event-da49dce6b9",
+    "event-e3dbb551dc"
+  ],
+  "services": {
+    "service-0": "SaaS",
+    "service-1": "SaaS",
+    "service-2": "SaaS",
+    "service-3": "SaaS",
+    "service-4": "SaaS",
+    "service-5": "SaaS",
+    "service-6": "SaaS",
+    "service-7": "SaaS",
+    "service-8": "PaaS",
+    "service-9": "PaaS",
+    "service-10": "PaaS",
+    "service-11": "PaaS",
+    "service-12": "PaaS",
+    "service-13": "PaaS",
+    "service-14": "IaaS",
+    "service-15": "IaaS",
+    "service-16": "IaaS",
+    "service-17": "IaaS",
+    "service-18": "IaaS",
+    "service-19": "IaaS"
+  },
+  "bingo": [
+    [
+      "Blob Storage / S3",
+      "I store files as objects, practically unlimited."
+    ],
+    [
+      "Serverless Function",
+      "I run your code only when an event happens."
+    ],
+    [
+      "Load Balancer",
+      "I spread traffic across many servers."
+    ],
+    [
+      "Kubernetes",
+      "I orchestrate thousands of containers."
+    ],
+    [
+      "Docker",
+      "I package an app with everything it needs into a portable image."
+    ],
+    [
+      "CDN",
+      "I cache content close to users around the world."
+    ],
+    [
+      "DNS",
+      "I turn names into IP addresses."
+    ],
+    [
+      "Virtual Machine",
+      "I am a computer inside a computer."
+    ],
+    [
+      "Hypervisor",
+      "I let many VMs share one physical server."
+    ],
+    [
+      "Region",
+      "I am a geographic area containing data centres."
+    ],
+    [
+      "Availability Zone",
+      "I am a separate data centre inside a region."
+    ],
+    [
+      "Autoscaling",
+      "I add servers when traffic rises and remove them when it falls."
+    ],
+    [
+      "IaaS",
+      "I give you raw servers, storage and networks."
+    ],
+    [
+      "PaaS",
+      "You bring code, I run it."
+    ],
+    [
+      "SaaS",
+      "Just log in and use me."
+    ],
+    [
+      "Hybrid Cloud",
+      "I mix your own data centre with public cloud."
+    ],
+    [
+      "Multi-Cloud",
+      "I use more than one public cloud provider."
+    ],
+    [
+      "Microservices",
+      "I split a big app into small independent services."
+    ],
+    [
+      "API",
+      "I am the contract that lets software talk to software."
+    ],
+    [
+      "Cache",
+      "I keep hot data in fast memory."
+    ],
+    [
+      "Message Queue",
+      "I hold messages so services can work at their own pace."
+    ],
+    [
+      "Firewall",
+      "I block unwanted network traffic."
+    ],
+    [
+      "Encryption",
+      "I scramble data so only key holders can read it."
+    ],
+    [
+      "MFA",
+      "I ask for a second proof of who you are."
+    ],
+    [
+      "Metrics",
+      "I am numbers over time, like CPU %."
+    ],
+    [
+      "Logs",
+      "I am timestamped records of events."
+    ],
+    [
+      "Traces",
+      "I follow one request across many services."
+    ],
+    [
+      "SLA",
+      "I am a reliability promise with penalties."
+    ],
+    [
+      "CI/CD",
+      "I build, test and deploy your code automatically."
+    ],
+    [
+      "Infrastructure as Code",
+      "I define servers in text files."
+    ],
+    [
+      "Spot VM",
+      "I am a cheap server that can be taken away at short notice."
+    ],
+    [
+      "Edge Computing",
+      "I process data close to where it is created."
+    ]
+  ]
+}

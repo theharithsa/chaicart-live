@@ -1,0 +1,640 @@
+{
+  "decks": [
+    {
+      "id": "shark",
+      "name": "Cloud Shark Tank",
+      "cards": [
+        {
+          "title": "Client brief: ChaiCart",
+          "subtitle": "What the Sharks want",
+          "body": "Launch in 6 weeks in 5 Indian cities Customer data must stay in India Team knows Python &amp; JavaScript Tight budget, startup credits welcome Wants AI recommendations 20× traffic spikes on cricket match days"
+        },
+        {
+          "title": "You are AWS",
+          "subtitle": "Launched 2006 — the pioneer",
+          "body": "Largest market share &amp; broadest service catalogue Biggest partner &amp; startup ecosystem Indian regions: Mumbai, Hyderabad Amazon Bedrock for GenAI They will ask: “Isn't AWS complicated and pricing confusing?”"
+        },
+        {
+          "title": "You are Microsoft Azure",
+          "subtitle": "Enterprise &amp; hybrid champion",
+          "body": "Works with Microsoft 365, Teams, Entra ID, GitHub Strong hybrid (Azure Arc) story Indian regions: Central India (Pune), South India (Chennai), West India (Mumbai) + more Azure OpenAI / AI Foundry They will ask: “Aren't you only for big corporates?”"
+        },
+        {
+          "title": "You are Google Cloud",
+          "subtitle": "Data &amp; AI native",
+          "body": "BigQuery analytics, Vertex AI, Gemini models, TPUs Kubernetes was born at Google (GKE) Indian regions: Mumbai, Delhi Huge global private network They will ask: “Your enterprise footprint is smaller — will you be around?”"
+        },
+        {
+          "title": "You are Oracle Cloud (OCI)",
+          "subtitle": "The database powerhouse",
+          "body": "Oracle Database &amp; Autonomous Database Strong price-performance claims Indian regions: Mumbai, Hyderabad Oracle Database available inside Azure/AWS/Google They will ask: “Why would a chai startup need Oracle?”"
+        }
+      ]
+    },
+    {
+      "id": "arch",
+      "name": "Architecture Lego",
+      "cards": [
+        {
+          "title": "DNS",
+          "subtitle": "Turns chaicart.in into an IP address",
+          "body": "On Azure: Azure DNS ChaiCart use"
+        },
+        {
+          "title": "CDN",
+          "subtitle": "Caches images/menus close to users",
+          "body": "On Azure: Azure Front Door / CDN ChaiCart use"
+        },
+        {
+          "title": "WAF / Firewall",
+          "subtitle": "Blocks bots & attacks",
+          "body": "On Azure: Azure WAF, Azure Firewall ChaiCart use"
+        },
+        {
+          "title": "Load Balancer",
+          "subtitle": "Spreads traffic across servers",
+          "body": "On Azure: Azure Load Balancer / App Gateway ChaiCart use"
+        },
+        {
+          "title": "API Gateway",
+          "subtitle": "Front door for mobile-app APIs, rate limits",
+          "body": "On Azure: Azure API Management ChaiCart use"
+        },
+        {
+          "title": "Virtual Machine",
+          "subtitle": "A full server you manage",
+          "body": "On Azure: Azure VMs ChaiCart use"
+        },
+        {
+          "title": "Kubernetes / Containers",
+          "subtitle": "Runs your microservices",
+          "body": "On Azure: AKS, Container Apps ChaiCart use"
+        },
+        {
+          "title": "Serverless Function",
+          "subtitle": "Runs code on events (e.g. send SMS)",
+          "body": "On Azure: Azure Functions ChaiCart use"
+        },
+        {
+          "title": "SQL Database",
+          "subtitle": "Orders & payments — consistent data",
+          "body": "On Azure: Azure SQL / PostgreSQL ChaiCart use"
+        },
+        {
+          "title": "NoSQL Database",
+          "subtitle": "Menus, carts, sessions — huge scale",
+          "body": "On Azure: Cosmos DB ChaiCart use"
+        },
+        {
+          "title": "Cache",
+          "subtitle": "Super-fast memory for hot data",
+          "body": "On Azure: Azure Cache for Redis ChaiCart use"
+        },
+        {
+          "title": "Message Queue",
+          "subtitle": "Absorbs spikes, decouples services",
+          "body": "On Azure: Service Bus / Storage Queue ChaiCart use"
+        },
+        {
+          "title": "Object Storage",
+          "subtitle": "Photos, invoices, backups",
+          "body": "On Azure: Blob Storage ChaiCart use"
+        },
+        {
+          "title": "Identity & Secrets",
+          "subtitle": "Logins, roles, keys",
+          "body": "On Azure: Entra ID, Key Vault ChaiCart use"
+        },
+        {
+          "title": "Observability",
+          "subtitle": "Metrics, logs, traces, alerts",
+          "body": "On Azure: Azure Monitor, Dynatrace ChaiCart use"
+        },
+        {
+          "title": "TWIST: Diwali Mega Sale",
+          "subtitle": "",
+          "body": "50× traffic for 6 hours. No extra budget. What scales? What gets cached? What goes into a queue?"
+        },
+        {
+          "title": "TWIST: Region outage",
+          "subtitle": "",
+          "body": "Your primary cloud region is down for 2 hours. What keeps working?"
+        },
+        {
+          "title": "TWIST: New data law",
+          "subtitle": "",
+          "body": "All customer personal data must stay in India, and users can request deletion."
+        },
+        {
+          "title": "TWIST: CFO says cut 30%",
+          "subtitle": "",
+          "body": "Reduce the monthly bill by 30% without hurting checkout."
+        }
+      ]
+    },
+    {
+      "id": "kitchen",
+      "name": "Human Kitchen",
+      "cards": [
+        {
+          "title": "Order service",
+          "subtitle": "Station 1",
+          "body": "Take a blank ticket. Write an Order ID (e.g. CC-001) and the customer name. Write your timestamp. Pass to Payment."
+        },
+        {
+          "title": "Payment service",
+          "subtitle": "Station 2",
+          "body": "Write PAID and the amount. Write your timestamp. Pass to Kitchen. If the facilitator taps you — freeze!"
+        },
+        {
+          "title": "Kitchen service",
+          "subtitle": "Station 3",
+          "body": "Draw a chai cup on the ticket. Write your timestamp. Pass to Delivery."
+        },
+        {
+          "title": "Delivery service",
+          "subtitle": "Station 4",
+          "body": "Write a rider name. Write your timestamp. Pass to Notification."
+        },
+        {
+          "title": "Notification service",
+          "subtitle": "Station 5",
+          "body": "Write “SMS sent”. Write your timestamp. Drop it in the DONE pile."
+        },
+        {
+          "title": "The monolith",
+          "subtitle": "Round 1 only",
+          "body": "You are the whole restaurant. Do ALL five steps yourself on each ticket, one ticket at a time."
+        }
+      ]
+    },
+    {
+      "id": "biz",
+      "name": "Follow the Order",
+      "cards": [
+        {
+          "title": "Commerce / order app",
+          "subtitle": "Shopify, custom app",
+          "body": "Say: “Order CC-1042 placed, ₹180, paid by UPI.” Stamp and pass to CRM."
+        },
+        {
+          "title": "CRM",
+          "subtitle": "Salesforce, Dynamics 365, Zoho",
+          "body": "Say: “Priya gets 18 loyalty points. 5th order this week — VIP!” Stamp and pass to ERP."
+        },
+        {
+          "title": "ERP – Finance",
+          "subtitle": "SAP S/4HANA, Oracle, Dynamics 365",
+          "body": "Say: “Invoice generated, GST recorded, revenue booked.” Stamp and pass to SCM."
+        },
+        {
+          "title": "SCM – Inventory",
+          "subtitle": "SAP IBP, Oracle SCM",
+          "body": "Say: “Milk stock at Koramangala below 10 L — purchase order raised to dairy supplier.” Stamp and pass to HCM."
+        },
+        {
+          "title": "HCM – People",
+          "subtitle": "Workday, SuccessFactors, Darwinbox",
+          "body": "Say: “Rider Ravi completed delivery — ₹25 incentive added to payroll.” Stamp and pass to BI."
+        },
+        {
+          "title": "BI – Analytics",
+          "subtitle": "Power BI, Tableau, Looker",
+          "body": "Say: “Ginger chai sales up 30% at 4 PM in Bengaluru!” Stamp. Done!"
+        },
+        {
+          "title": "ITSM",
+          "subtitle": "ServiceNow, Jira Service Mgmt",
+          "body": "Only act if something breaks! Say: “Incident INC-771 opened, on-call engineer paged, customer notified.”"
+        },
+        {
+          "title": "Order token #CC-1042",
+          "subtitle": "",
+          "body": "2 Masala Chai + 1 Samosa · ₹180 · Koramangala ☐ Commerce ☐ CRM ☐ ERP ☐ SCM ☐ HCM ☐ BI"
+        }
+      ]
+    },
+    {
+      "id": "career",
+      "name": "Career Tarot",
+      "cards": [
+        {
+          "title": "The Cloud Architect",
+          "subtitle": "“I see the whole city before it is built.”",
+          "body": "You: design systems — pick services, draw diagrams, balance cost vs reliability vs security. Skills: networking, identity, databases, Well-Architected thinking, communication. Certs: AZ-104 → AZ-305 · AWS SA Associate/Professional. A day: design reviews, whiteboards, customer calls."
+        },
+        {
+          "title": "The DevOps Engineer",
+          "subtitle": "“Nothing ships by hand while I am around.”",
+          "body": "You: build CI/CD pipelines and automate everything from code to production. Skills: Git, Linux, scripting, Docker, pipelines, IaC. Certs: AZ-400 · Terraform Associate · CKAD. A day: fixing a flaky pipeline, speeding up builds, helping devs ship."
+        },
+        {
+          "title": "The Site Reliability Engineer",
+          "subtitle": "“I guard the nines.”",
+          "body": "You: keep production reliable using software engineering — SLOs, automation, incident response. Skills: coding, Linux, Kubernetes, observability, calm under pressure. Certs: CKA · cloud associate level · observability certs. A day: reviewing SLOs, killing toil, leading a postmortem."
+        },
+        {
+          "title": "The Platform Engineer",
+          "subtitle": "“I build the roads others drive on.”",
+          "body": "You: build the internal developer platform — self-service environments, templates, golden paths. Skills: Kubernetes, IaC, APIs, developer empathy. Certs: CKA/CKS · Terraform Associate. A day: a new “create service” template in the developer portal."
+        },
+        {
+          "title": "The Cloud Security Engineer",
+          "subtitle": "“Trust nothing. Verify everything.”",
+          "body": "You: secure identities, networks and data; hunt misconfigurations; respond to threats. Skills: IAM, networking, encryption, policy-as-code, threat modelling. Certs: SC-900 → AZ-500 · AWS Security Specialty · CKS. A day: fixing a public storage finding before attackers do."
+        },
+        {
+          "title": "The FinOps Analyst",
+          "subtitle": "“Every rupee in the cloud has a name.”",
+          "body": "You: make cloud spend visible and efficient — tagging, forecasting, savings plans, showback. Skills: cloud pricing, Excel/Power BI, SQL, negotiation. Certs: FinOps Certified Practitioner · AZ-900. A day: “Why did the bill jump 40%?” — and finding out."
+        },
+        {
+          "title": "The Observability Engineer",
+          "subtitle": "“I see what others cannot.”",
+          "body": "You: make systems observable — instrumentation, dashboards, alerting, SLOs, AIOps. Skills: OpenTelemetry, metrics/logs/traces, query languages (DQL, KQL, PromQL), APM tools. Certs: Dynatrace Associate · cloud monitoring certs. A day: turning a 2-hour outage into a 2-minute alert."
+        },
+        {
+          "title": "The AI / MLOps Engineer",
+          "subtitle": "“I teach machines, then keep them honest.”",
+          "body": "You: take AI models to production — pipelines, GPUs, evaluation, monitoring, cost control. Skills: Python, ML basics, containers, cloud AI services, data engineering. Certs: AI-900 → AI-102 · Azure Data Scientist · Vertex AI / Bedrock learning paths. A day: deploying a chatbot and checking it doesn't hallucinate prices."
+        }
+      ]
+    }
+  ],
+  "posters": [
+    {
+      "icon": "🎬",
+      "name": "Netflix",
+      "tag": "From a DVD outage to chaos engineering",
+      "color": "#b20710",
+      "challenge": "In 2008 a major database corruption stopped Netflix from shipping DVDs for about three days. One big data centre meant one big point of failure.",
+      "did": "Netflix moved to AWS public cloud over several years, completing the migration in early 2016. It rebuilt its monolith as many microservices and invented Chaos Monkey, a tool that randomly shuts down production servers so engineers are forced to build systems that survive failure.",
+      "concepts": [
+        "Public cloud",
+        "Microservices",
+        "Design for failure",
+        "Chaos engineering",
+        "Multi-region"
+      ],
+      "q": "Would you let a “monkey” randomly kill ChaiCart servers? What would you need first?"
+    },
+    {
+      "icon": "🏏",
+      "name": "Disney+ Hotstar",
+      "tag": "Crores of fans, one final over",
+      "color": "#0c1f5c",
+      "challenge": "Live cricket brings enormous spikes. Traffic can jump within seconds when a star batter walks in, or crash when a wicket falls. Streams set records, with around 5.9 crore concurrent viewers reported during the 2023 World Cup final.",
+      "did": "The engineering team talked publicly about pre-scaling infrastructure ahead of big moments because reactive autoscaling can be too slow. They also run massive load tests and game days, use CDNs heavily, and plan “panic mode” features that switch off non-essential services to protect the video stream.",
+      "concepts": [
+        "Elastic scaling",
+        "Pre-warming",
+        "CDN",
+        "Load testing",
+        "Graceful degradation"
+      ],
+      "q": "What would ChaiCart switch off first to survive an IPL-final spike?"
+    },
+    {
+      "icon": "📲",
+      "name": "UPI / NPCI",
+      "tag": "Billions of payments every month",
+      "color": "#1e6b45",
+      "challenge": "India wanted instant, interoperable, near-free digital payments between any bank and any app, available 24×7.",
+      "did": "NPCI launched UPI in 2016 as an API-based platform connecting banks and apps like PhonePe, Google Pay and Paytm. It now handles 10+ billion transactions a month. Being critical financial infrastructure under RBI rules, it runs in NPCI-controlled data centres with high redundancy, a private-cloud-style model.",
+      "concepts": [
+        "APIs & platforms",
+        "Private cloud",
+        "High availability",
+        "Regulation & data localisation",
+        "Massive scale"
+      ],
+      "q": "Why might UPI choose a private/regulated setup when Netflix chose public cloud?"
+    },
+    {
+      "icon": "🚆",
+      "name": "IRCTC Tatkal",
+      "tag": "The 10 AM stampede",
+      "color": "#8a4b0f",
+      "challenge": "Tatkal booking opens at a fixed time. Huge numbers of users (and bots!) hit the site at exactly the same second for a limited number of seats.",
+      "did": "Railway ticketing has invested over the years in more capacity, caching, CAPTCHA and bot protection, queueing and rate limiting, and a better mobile app. The problem is unusual because demand is predictable in time but far larger than supply.",
+      "concepts": [
+        "Queues & rate limiting",
+        "Caching",
+        "WAF / bot protection",
+        "Capacity planning",
+        "Fairness"
+      ],
+      "q": "If ChaiCart gave away 100 free chais at 4:00 PM, how would you stop the app from melting?"
+    },
+    {
+      "icon": "🏦",
+      "name": "Capital One",
+      "tag": "A bank goes all-in on public cloud",
+      "color": "#004977",
+      "challenge": "A large US bank wanted to move faster, use data and AI, and stop running its own data centres.",
+      "did": "Capital One went all-in on AWS and announced in 2020 that it had closed its last data centres. It also lived through the downside: a 2019 data breach linked to a misconfigured web application firewall, a hard lesson in the shared-responsibility model.",
+      "concepts": [
+        "Cloud migration",
+        "Regulated industry",
+        "Shared responsibility",
+        "Security misconfiguration",
+        "DevSecOps"
+      ],
+      "q": "Who was responsible for the breach: the bank or the cloud provider? Why?"
+    },
+    {
+      "icon": "🎧",
+      "name": "Spotify",
+      "tag": "From own data centres to Google Cloud",
+      "color": "#127a3a",
+      "challenge": "Spotify ran its own data centres. Engineers spent time managing hardware instead of building features for millions of listeners.",
+      "did": "Spotify announced its move to Google Cloud in 2016, attracted by managed data and analytics services. Its engineers also built Backstage, an internal developer portal that was open-sourced and became a CNCF project. It kicked off the platform engineering trend.",
+      "concepts": [
+        "Managed services",
+        "Data & analytics",
+        "Platform engineering",
+        "Developer experience",
+        "Open source"
+      ],
+      "q": "What “Backstage” would ChaiCart developers need?"
+    }
+  ],
+  "timeline": [
+    {
+      "id": "event-3dff45d6e1",
+      "text": "Amazon launches S3 storage and EC2 servers — AWS is born"
+    },
+    {
+      "id": "event-d2124d9099",
+      "text": "ARPANET, the ancestor of the internet, sends its first message"
+    },
+    {
+      "id": "event-e3dbb551dc",
+      "text": "ChatGPT launches — GenAI runs on massive cloud GPU clusters"
+    },
+    {
+      "id": "event-92c227cd34",
+      "text": "Docker makes containers easy for every developer"
+    },
+    {
+      "id": "event-03de7764a9",
+      "text": "Google App Engine launches, an early big PaaS"
+    },
+    {
+      "id": "event-6fc718f566",
+      "text": "Google open-sources Kubernetes"
+    },
+    {
+      "id": "event-da49dce6b9",
+      "text": "India launches UPI for instant mobile payments"
+    },
+    {
+      "id": "event-7b2dd0834c",
+      "text": "Mainframe time-sharing lets many users share one giant computer"
+    },
+    {
+      "id": "event-6e78508bef",
+      "text": "Microsoft Azure becomes generally available"
+    },
+    {
+      "id": "event-567d7a1343",
+      "text": "Salesforce launches with its “No Software” campaign"
+    },
+    {
+      "id": "event-e2fef49a7d",
+      "text": "Tim Berners-Lee invents the World Wide Web"
+    },
+    {
+      "id": "event-358156296f",
+      "text": "VMware is founded and brings virtualization to ordinary x86 servers"
+    }
+  ],
+  "services": [
+    {
+      "id": "service-0",
+      "name": "Gmail",
+      "description": "Email in your browser"
+    },
+    {
+      "id": "service-1",
+      "name": "Microsoft 365",
+      "description": "Word, Excel, Teams online"
+    },
+    {
+      "id": "service-2",
+      "name": "Salesforce",
+      "description": "Customer relationship management"
+    },
+    {
+      "id": "service-3",
+      "name": "Zoom",
+      "description": "Video meetings"
+    },
+    {
+      "id": "service-4",
+      "name": "Canva",
+      "description": "Design in the browser"
+    },
+    {
+      "id": "service-5",
+      "name": "ServiceNow",
+      "description": "IT tickets & workflows"
+    },
+    {
+      "id": "service-6",
+      "name": "Workday",
+      "description": "HR & payroll"
+    },
+    {
+      "id": "service-7",
+      "name": "Dynatrace",
+      "description": "Observability platform"
+    },
+    {
+      "id": "service-8",
+      "name": "Azure App Service",
+      "description": "Upload your web app code, it runs"
+    },
+    {
+      "id": "service-9",
+      "name": "Google App Engine",
+      "description": "Deploy code, Google scales it"
+    },
+    {
+      "id": "service-10",
+      "name": "Heroku",
+      "description": "“git push” and your app is live"
+    },
+    {
+      "id": "service-11",
+      "name": "Azure SQL Database",
+      "description": "Managed database, no server to patch"
+    },
+    {
+      "id": "service-12",
+      "name": "Azure Functions",
+      "description": "Code runs only when triggered"
+    },
+    {
+      "id": "service-13",
+      "name": "Firebase",
+      "description": "Backend for mobile apps"
+    },
+    {
+      "id": "service-14",
+      "name": "Azure Virtual Machines",
+      "description": "Rent a server, install anything"
+    },
+    {
+      "id": "service-15",
+      "name": "AWS EC2",
+      "description": "Elastic compute instances"
+    },
+    {
+      "id": "service-16",
+      "name": "Google Compute Engine",
+      "description": "Virtual machines on Google"
+    },
+    {
+      "id": "service-17",
+      "name": "Azure Blob Storage",
+      "description": "Raw object storage"
+    },
+    {
+      "id": "service-18",
+      "name": "DigitalOcean Droplets",
+      "description": "Simple cloud servers"
+    },
+    {
+      "id": "service-19",
+      "name": "Azure Virtual Network",
+      "description": "Your private network in the cloud"
+    }
+  ],
+  "bingo": [
+    "Blob Storage / S3",
+    "Serverless Function",
+    "Load Balancer",
+    "Kubernetes",
+    "Docker",
+    "CDN",
+    "DNS",
+    "Virtual Machine",
+    "Hypervisor",
+    "Region",
+    "Availability Zone",
+    "Autoscaling",
+    "IaaS",
+    "PaaS",
+    "SaaS",
+    "Hybrid Cloud",
+    "Multi-Cloud",
+    "Microservices",
+    "API",
+    "Cache",
+    "Message Queue",
+    "Firewall",
+    "Encryption",
+    "MFA",
+    "Metrics",
+    "Logs",
+    "Traces",
+    "SLA",
+    "CI/CD",
+    "Infrastructure as Code",
+    "Spot VM",
+    "Edge Computing"
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "label": "Top offender: Open Services . Which service has the highest failure rate in the last 2 hours? What's the rate?",
+      "points": 10,
+      "query": ""
+    },
+    {
+      "id": "q2",
+      "label": "Slowest service: Which service has the worst response time ? Is it median or p95/p99 that looks bad?",
+      "points": 10,
+      "query": ""
+    },
+    {
+      "id": "q3",
+      "label": "Follow the ticket: Open Distributed Traces and pick a failed request. How many spans does it have? Which span took longest?",
+      "points": 15,
+      "query": ""
+    },
+    {
+      "id": "q4",
+      "label": "Who calls whom? From a service, look at its incoming and outgoing calls (service flow / Smartscape). Name 2 services it depends on.",
+      "points": 10,
+      "query": ""
+    },
+    {
+      "id": "q5",
+      "label": "Problem solver: Open Problems . Pick one problem. What's the root cause entity, and how many entities were affected?",
+      "points": 15,
+      "query": ""
+    },
+    {
+      "id": "q6",
+      "label": "Error detective: In Logs or a Notebook , run this. When was the error peak? fetch logs | filter loglevel == \"ERROR\" | makeTimeseries errors = count(), interval: 5m",
+      "points": 10,
+      "query": "fetch logs\n| filter loglevel == \"ERROR\"\n| makeTimeseries errors = count(), interval: 5m"
+    },
+    {
+      "id": "q7",
+      "label": "Saturation check: Is any host above 80% CPU? timeseries cpu = avg(dt.host.cpu.usage), by: { dt.entity.host }",
+      "points": 10,
+      "query": "timeseries cpu = avg(dt.host.cpu.usage), by: { dt.entity.host }"
+    },
+    {
+      "id": "q8",
+      "label": "Bonus: Write your own DQL query that lists the top 5 slowest services by p95 . Hint: fetch spans , summarize , percentile(duration, 95) , sort , limit .",
+      "points": 20,
+      "query": ""
+    },
+    {
+      "id": "q9",
+      "label": "Inspect the deployed ChaiCart App Service in Central India. What is its public URL?",
+      "points": 5,
+      "query": ""
+    },
+    {
+      "id": "q10",
+      "label": "Place demo orders. If Application Insights ingestion is configured, what is the peak requests/sec? Otherwise use the evidence supplied by the facilitator.",
+      "points": 10,
+      "query": ""
+    },
+    {
+      "id": "q11",
+      "label": "Metric explorer: In Monitor → Metrics , chart “Requests” and “Response time” for the web app. What's the average response time?",
+      "points": 5,
+      "query": ""
+    },
+    {
+      "id": "q12",
+      "label": "Request /chai-not-found. Record the status code and where the failed request appears in the configured observability tool.",
+      "points": 10,
+      "query": ""
+    },
+    {
+      "id": "q13",
+      "label": "If Application Insights is configured, run the supplied KQL and explain the results. Otherwise explain the prepared evidence.",
+      "points": 10,
+      "query": "requests\n| summarize count() by resultCode, bin(timestamp, 1m)\n| order by timestamp desc"
+    },
+    {
+      "id": "q14",
+      "label": "Inspect the workshop budget alert if configured. Why alert at 80%, and why does an alert not cap spending?",
+      "points": 5,
+      "query": ""
+    },
+    {
+      "id": "q15",
+      "label": "Describe safe cleanup of workshop resources after the event. Do not delete the shared live demo during the workshop.",
+      "points": 5,
+      "query": ""
+    }
+  ]
+}

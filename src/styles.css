@@ -192,3 +192,5 @@ pre.logs .NOTE { color: #A7A398; }
 
 .empty { padding: 40px 20px; text-align: center; color: var(--muted); }
 .divider { height: 1px; background: var(--line); margin: 6px 0; }
+
+.bingo-board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}.bingo-board .btn{white-space:normal;font-size:11px;padding:10px 3px;min-height:65px}.response-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}.architecture-flow{display:flex;flex-direction:column;gap:8px}input,select,textarea{max-width:100%}pre{white-space:pre-wrap;overflow-wrap:anywhere}.tabs{flex-wrap:wrap}.btn:disabled{opacity:.5;cursor:not-allowed}

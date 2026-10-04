@@ -25,6 +25,10 @@ export default function Captain() {
       : null,
   );
   const session = useDocData<SessionDoc>(staff ? `sessions/${sid}` : null);
+  const teamCodes = useCollectionData<{
+    joinCode: string;
+    slots: Record<string, string>;
+  }>(staff && sid ? `sessions/${sid}/teams` : null, "region", staff?.region);
   const [teamId, setTeamId] = useState("");
   if (!isGoogleStudent(user))
     return (
@@ -68,6 +72,54 @@ export default function Captain() {
               six teams. The facilitator applies reviewed awards. You cannot
               change global activities or another region.
             </p>
+          </div>
+          <div className="card stack">
+            <h3>Your region’s team join codes</h3>
+            <p className="small muted">
+              Codes are generated when the facilitator creates the session.
+              Share each code with its assigned team; students sign in with
+              Google and claim an available role.
+            </p>
+            {teamCodes === undefined && <p>Loading team codes…</p>}
+            {teamCodes?.length === 0 && (
+              <p>
+                No team codes are available. Ask the facilitator to check this
+                session’s setup.
+              </p>
+            )}
+            {teams.map((t) => {
+              const data = teamCodes?.find((code) => code.id === t.id);
+              return (
+                <div className="spread" key={t.id}>
+                  <div>
+                    <b>{t.name}</b>
+                    <br />
+                    <code>{data?.joinCode ?? "Not available"}</code>
+                    <span className="small muted">
+                      {" "}
+                      · {Object.keys(data?.slots ?? {}).length}/5 roles claimed
+                    </span>
+                  </div>
+                  {data?.joinCode && (
+                    <button
+                      className="btn sm ghost"
+                      onClick={() =>
+                        navigator.clipboard
+                          .writeText(data.joinCode)
+                          .catch(() =>
+                            setError(
+                              "Could not copy. Select the displayed code and copy it manually.",
+                            ),
+                          )
+                      }
+                    >
+                      Copy {t.name} code
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+            {error && <p role="alert">{error}</p>}
           </div>
           <div className="tabs">
             {teams.map((t) => (

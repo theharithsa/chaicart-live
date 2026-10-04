@@ -32,7 +32,7 @@ Architecture is reviewed and frozen before Day2 games. No chart-paper proof is n
 
 - `#/console`: Google sign-in restricted to facilitator allowlist. Setup creates a session, its team codes and protected key copies. Set the workshop date; assign captain Google emails to regions.
 - Share each team’s code from **Workshop** and share `#/captain?s=SESSION` with captains.
-- `#/captain`: scoped six-team roster, responses, rubrics, networking approvals, feedback and X shortlists. Captains propose credits; they cannot change global activities or another region’s credits.
+- `#/captain`: assigned region’s team join codes with copy buttons and role counts, scoped six-team roster, responses, rubrics, networking approvals, feedback and X shortlists. Captains propose credits; they cannot change global activities or another region’s credits.
 - **Run** launches/locks/reveals activities and timers. **Workshop** applies captain approvals once, freezes architectures, calls Bingo clues, assigns station volunteers, starts/stops Factory rounds, records awards and issues certificates.
 - Bingo awards are capped at three teams, Gallery at four, and Timeline at one winner per region. Confirm submission timestamps when selecting first-place awards.
 - Poker: issue staff rolls for each card before students choose. Rolls and frozen architecture documents cannot be overwritten through the client.

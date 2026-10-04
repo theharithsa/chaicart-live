@@ -10,7 +10,7 @@ import {
   runTransaction,
   serverTimestamp,
   where,
-} from "firebase/firestore";
+} from "./firestore";
 import { auth, db } from "../firebase";
 import { START_CREDITS, TEAMS } from "../content/teams";
 

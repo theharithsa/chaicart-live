@@ -1,4 +1,4 @@
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "../lib/firestore";
 import { db } from "../firebase";
 import type { Activity } from "../content/activities";
 import type { SessionDoc, SessionState, Student, Submission } from "../types";

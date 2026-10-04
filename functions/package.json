@@ -1,0 +1,32 @@
+{
+  "name": "chaicart-telemetry-functions",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/api-logs": "^0.222.0",
+    "@opentelemetry/exporter-logs-otlp-proto": "^0.222.0",
+    "@opentelemetry/exporter-metrics-otlp-proto": "^0.222.0",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.222.0",
+    "@opentelemetry/resources": "^2.11.0",
+    "@opentelemetry/sdk-logs": "^0.222.0",
+    "@opentelemetry/sdk-metrics": "^2.11.0",
+    "@opentelemetry/sdk-node": "^0.222.0",
+    "firebase-admin": "^14.5.0",
+    "firebase-functions": "^7.0.0",
+    "@opentelemetry/sdk-trace": "^2.11.0"
+  },
+  "overrides": {
+    "gaxios@^6.4.0": {
+      "uuid": "^11.1.1"
+    }
+  },
+  "main": "index.js"
+}

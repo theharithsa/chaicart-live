@@ -6,7 +6,7 @@ import {
   setDoc,
   updateDoc,
   writeBatch,
-} from "firebase/firestore";
+} from "../lib/firestore";
 import { db } from "../firebase";
 import { TEAMS, REGIONS } from "../content/teams";
 import { initialScores } from "../lib/credits";

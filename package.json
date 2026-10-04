@@ -11,6 +11,9 @@
     "test:rules": "npx --yes firebase-tools emulators:exec --project demo-chaicart --only firestore \"node --test test/rules.test.mjs\""
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/resources": "^2.11.0",
+    "@opentelemetry/sdk-trace-web": "^2.11.0",
     "firebase": "^12.19.0",
     "qrcode": "^1.5.4",
     "react": "^19.2.8",

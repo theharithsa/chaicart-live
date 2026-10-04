@@ -1,4 +1,4 @@
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "../lib/firestore";
 import { db } from "../firebase";
 import { useState } from "react";
 import { useCollectionData } from "../lib/hooks";

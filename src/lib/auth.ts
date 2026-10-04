@@ -1,3 +1,4 @@
+import { observe } from "./telemetry";
 import {
   GoogleAuthProvider,
   linkWithPopup,
@@ -5,7 +6,7 @@ import {
 } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 
-export async function googleSignIn() {
+async function signIn() {
   if (auth.currentUser?.isAnonymous) {
     // Link in place: legacy submissions and membership retain their UID.
     try {
@@ -33,3 +34,5 @@ export const isGoogleStudent = (
   user.providerData.some(
     (p) => p.providerId === GoogleAuthProvider.PROVIDER_ID,
   );
+
+export const googleSignIn = () => observe("auth.google", () => signIn());

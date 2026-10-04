@@ -1,4 +1,4 @@
-import { doc, runTransaction } from "firebase/firestore";
+import { doc, runTransaction } from "../lib/firestore";
 import { db } from "../firebase";
 import { REGIONS, TEAMS, TEAM_BY_ID } from "../content/teams";
 import { downloadCsv, membersByTeam, type ConsoleCtx } from "./shared";

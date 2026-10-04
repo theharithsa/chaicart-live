@@ -7,7 +7,7 @@ import {
   onSnapshot,
   query,
   where,
-} from "firebase/firestore";
+} from "./firestore";
 import { auth, db } from "../firebase";
 
 export function useAuthUser() {

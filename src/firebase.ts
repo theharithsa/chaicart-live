@@ -1,6 +1,8 @@
+import { setTelemetryUser } from "./lib/telemetry";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
+  onAuthStateChanged,
   GoogleAuthProvider,
   connectAuthEmulator,
 } from "firebase/auth";
@@ -42,3 +44,6 @@ if (localEmulators) {
   connectAuthEmulator(auth, "http://127.0.0.1:9195", { disableWarnings: true });
   connectFirestoreEmulator(db, "127.0.0.1", 8185);
 }
+
+// One global subscription identifies restored, switched and signed-out sessions.
+onAuthStateChanged(auth, setTelemetryUser);

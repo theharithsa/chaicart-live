@@ -301,7 +301,7 @@ test("concurrent award invokes actual scoring transaction once, correction is ap
         ? { db: d, auth: { currentUser: { uid: "fac" } } }
         : name === "../content/teams"
           ? teams
-          : name === "firebase/firestore"
+          : (name === "firebase/firestore" || name === "./firestore")
             ? firestore
             : require(name),
     crypto,
@@ -664,7 +664,7 @@ test("120 Google students join 24 teams with atomic five-role reservations", asy
         )(exports, (name) =>
           name === "../firebase"
             ? { db: d }
-            : name === "firebase/firestore"
+            : (name === "firebase/firestore" || name === "./firestore")
               ? firestore
               : require(name),
         );

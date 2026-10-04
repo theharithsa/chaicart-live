@@ -29,15 +29,6 @@
           }
         ]
       }
-    ],
-    "rewrites": [
-      {
-        "source": "/api/telemetry",
-        "function": {
-          "functionId": "telemetryIngest",
-          "region": "asia-south1"
-        }
-      }
     ]
   },
   "emulators": {
@@ -50,17 +41,5 @@
     "ui": {
       "enabled": false
     }
-  },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "telemetry",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "test",
-        "*.log"
-      ]
-    }
-  ]
+  }
 }

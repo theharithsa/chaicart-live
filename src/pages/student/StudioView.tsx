@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { doc, runTransaction, serverTimestamp } from "firebase/firestore";
+import { doc, runTransaction, serverTimestamp } from "../../lib/firestore";
 import { db } from "../../firebase";
 import paperless from "../../content/paperless.json";
 import type { SimpleActivity } from "../../content/activities";

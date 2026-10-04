@@ -1,4 +1,4 @@
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "./firestore";
 import { db } from "../firebase";
 import type { Student } from "../types";
 

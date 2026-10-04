@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc, updateDoc } from "../lib/firestore";
 import { db } from "../firebase";
 import { useCollectionData, useDocData } from "../lib/hooks";
 import { applyCredits } from "../lib/credits";
@@ -68,7 +68,7 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
     );
   }
   async function freeze() {
-    const { getDoc } = await import("firebase/firestore");
+    const { getDoc } = await import("../lib/firestore");
     const s = await getDoc(
       doc(db, `sessions/${sid}/submissions/architecture__${team}`),
     );

@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "../../lib/firestore";
 import { db } from "../../firebase";
 import { useState } from "react";
 import type { SimpleActivity } from "../../content/activities";

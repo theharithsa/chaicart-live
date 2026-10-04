@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { signOut } from "firebase/auth";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "../../lib/firestore";
 import { auth, db } from "../../firebase";
 import { useCollectionData, useDocData } from "../../lib/hooks";
 import {

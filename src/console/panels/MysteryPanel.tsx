@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "../../lib/firestore";
 import { db } from "../../firebase";
 import type { SimpleActivity } from "../../content/activities";
 import { HINTS, SUSPECTS, WEAPONS } from "../../content/mystery";

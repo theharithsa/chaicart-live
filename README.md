@@ -92,3 +92,40 @@ Venue Wi-Fi and a fallback hotspot are needed for live scoring. Cached data/draf
 Firebase Auth + Firestore + Hosting; no Cloud Functions or photo uploads are introduced. X entries store public post links. Keep listeners scoped, monitor reads/writes during rehearsal, and confirm actual quotas rather than assuming the expanded workshop fits a free tier.
 
 See [the plan and audit](docs/PAPERLESS-APP-PLAN.md) and [release checks](docs/RELEASE-CHECKS.md).
+
+
+## Dynatrace RUM and OpenTelemetry
+
+The shared workshop RUM tag is installed in `index.html`. Google sign-in restoration, account changes and sign-out update `dtrum.identifyUser(email)` (cleared on sign-out). The callback is optional and cannot block authentication. Captured errors use sanitized operation/error codes, not form contents.
+
+`src/lib/firestore.ts` wraps the existing Firebase SDK calls with browser OTel spans. Reads inside a transaction share the parent transaction's trace and transaction ID. Finite listener spans measure initial load, errors and recovery. The wrappers do not change data, rules or scoring. Import instrumented calls from this module when adding new application operations.
+
+The protected gateway source is in `functions/`. It verifies Google Firebase ID tokens, derives UID/email from the verified token, bounds request size/timestamps/rate, and exports OTLP/HTTP protobuf. Client reports are diagnostic observations, not authoritative audit records. Internal Firestore processing is outside our instrumentation. The Dynatrace token is server-only; never put it in `VITE_*` configuration.
+
+### RUM-only deployment while gateway hosting is pending
+
+```sh
+npm ci
+npm run build
+npx firebase-tools deploy --project chaicloud-workshop --only hosting --config firebase.rum-only.json
+```
+
+Browser OTel forwarding is disabled unless `VITE_TELEMETRY_ENABLED=true`. RUM remains active independently. This configuration does not require Firebase Blaze or a Function and does not send background requests to an unavailable gateway.
+
+### Activate the Firebase gateway
+
+Firebase Functions requires Blaze billing. Once enabled:
+
+```sh
+npm ci --prefix functions
+npm test --prefix functions
+npx firebase-tools functions:secrets:set DYNATRACE_PLATFORM_TOKEN --project chaicloud-workshop
+VITE_TELEMETRY_ENABLED=true npm run build
+npx firebase-tools deploy --project chaicloud-workshop --only functions:telemetry,hosting
+```
+
+Enter the platform token only at the secret prompt. Both the token scopes and its owning user's permissions must allow `openpipeline:logs:ingest`, `openpipeline:metrics:ingest` and `openpipeline:traces:ingest`. The gateway uses `https://indiacs.live.dynatrace.com/api/v2/otlp`, Bearer authentication, delta metrics and bounded exporters. Its hosting rewrite keeps the endpoint same-origin for RUM correlation.
+
+If Firebase billing remains disabled, the same validated gateway can run on the existing Azure App Service after configuring an explicit endpoint, origin allowlist and Dynatrace cross-origin trace propagation. Do not enable browser forwarding until its gateway is verified.
+
+See the [workshop observability runbook](https://github.com/theharithsa/chaicart-cloud-workshop/blob/main/chaicart-demo/docs/OBSERVABILITY.md) for fields, metrics, investigation queries and demonstrations. Ingestion permission does not grant dashboard or Grail query access.

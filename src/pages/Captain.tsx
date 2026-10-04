@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "../lib/firestore";
 import { auth, db } from "../firebase";
 import { googleSignIn, isGoogleStudent } from "../lib/auth";
 import { useAuthUser, useCollectionData, useDocData } from "../lib/hooks";

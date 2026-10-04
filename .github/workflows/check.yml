@@ -21,4 +21,6 @@ jobs:
           VITE_FIREBASE_PROJECT_ID: demo-chaicart
           VITE_FIREBASE_APP_ID: demo-app
       - run: npm run lint
+      - run: npm ci --prefix functions
+      - run: npm test --prefix functions
       - run: npx firebase-tools emulators:exec --project demo-chaicart --only firestore "node --test test/rules.test.mjs"

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { doc, runTransaction, serverTimestamp } from "firebase/firestore";
+import { doc, runTransaction, serverTimestamp } from "../../lib/firestore";
 import { db } from "../../firebase";
 import { useCollectionData, useDocData, useNow } from "../../lib/hooks";
 import type { SimpleActivity } from "../../content/activities";

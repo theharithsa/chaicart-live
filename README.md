@@ -102,7 +102,7 @@ The shared workshop RUM tag is installed in `index.html`. Google sign-in restora
 
 The protected gateway source is in `functions/`. It verifies Google Firebase ID tokens, derives UID/email from the verified token, bounds request size/timestamps/rate, and exports OTLP/HTTP protobuf. Client reports are diagnostic observations, not authoritative audit records. Internal Firestore processing is outside our instrumentation. The Dynatrace token is server-only; never put it in `VITE_*` configuration.
 
-### RUM-only deployment while gateway hosting is pending
+### Optional RUM-only deployment
 
 ```sh
 npm ci
@@ -129,3 +129,11 @@ Enter the platform token only at the secret prompt. Both the token scopes and it
 If Firebase billing remains disabled, the same validated gateway can run on the existing Azure App Service after configuring an explicit endpoint, origin allowlist and Dynatrace cross-origin trace propagation. Do not enable browser forwarding until its gateway is verified.
 
 See the [workshop observability runbook](https://github.com/theharithsa/chaicart-cloud-workshop/blob/main/chaicart-demo/docs/OBSERVABILITY.md) for fields, metrics, investigation queries and demonstrations. Ingestion permission does not grant dashboard or Grail query access.
+
+### Deployed telemetry gateway
+
+The `telemetryIngest` Node.js 22 Function is deployed in `asia-south1`, with Firebase Hosting forwarding `/api/telemetry` to it. The ingestion credential is stored in Secret Manager. Production browser forwarding is enabled by building with `VITE_TELEMETRY_ENABLED=true`; use that flag for subsequent production builds. Gateway requests require a verified Google Firebase identity.
+
+Dynatrace uses OTLP/HTTP binary protobuf at `https://indiacs.live.dynatrace.com/api/v2/otlp/v1/{traces,metrics,logs}` with a server-only classic `Api-Token` credential (platform tokens use `Bearer`). The direct endpoint does not support gRPC. A 403 reporting a missing `openpipeline:*:ingest` permission requires fixing both token scopes and the token owner permissions, rather than changing the endpoint.
+
+The production gateway uses a classic token. The existing secret name `DYNATRACE_PLATFORM_TOKEN` is retained for compatibility; the exporter selects `Api-Token` for classic `dt0c01` tokens. Required classic scopes are `openTelemetryTrace.ingest`, `metrics.ingest`, and `logs.ingest`.

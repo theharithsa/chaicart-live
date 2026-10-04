@@ -9,6 +9,7 @@ import type { Submission } from "../../types";
 import type { StudentProps } from "./shared";
 import { bingoBoard } from "../../lib/bingo";
 import FactoryView from "./FactoryView";
+import TimelineOrder from "../../components/TimelineOrder";
 
 const COMPONENTS = [
   "loadbalancer",
@@ -95,40 +96,14 @@ export default function StudioView(
   if (activity.id === "factory") return <FactoryView {...props} />;
   return (
     <div className="stack">
-      {activity.id === "timeline" &&
-        order.map((id, i) => (
-          <div className="card spread" key={id}>
-            <span>
-              {i + 1}. {paperless.timeline.find((c) => c.id === id)?.text}
-            </span>
-            <div className="row">
-              <button
-                aria-label={`Move event ${i + 1} up`}
-                className="btn sm ghost"
-                disabled={!open || i === 0}
-                onClick={() => {
-                  const a = [...order];
-                  [a[i - 1], a[i]] = [a[i], a[i - 1]];
-                  edit("order", a);
-                }}
-              >
-                ↑
-              </button>
-              <button
-                aria-label={`Move event ${i + 1} down`}
-                className="btn sm ghost"
-                disabled={!open || i === order.length - 1}
-                onClick={() => {
-                  const a = [...order];
-                  [a[i + 1], a[i]] = [a[i], a[i + 1]];
-                  edit("order", a);
-                }}
-              >
-                ↓
-              </button>
-            </div>
-          </div>
-        ))}
+      {activity.id === "timeline" && (
+        <TimelineOrder
+          cards={paperless.timeline}
+          order={order}
+          disabled={!open || !!sub?.locked}
+          onChange={(next) => edit("order", next)}
+        />
+      )}
       {activity.id === "service-sort" &&
         paperless.services.map((c) => (
           <label key={c.id} className="card field">

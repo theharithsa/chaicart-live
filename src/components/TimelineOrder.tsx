@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 type Card = { id: string; text: string };
 type Drag = {
   id: string;
   pointerId: number;
   overId: string | null;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  offsetX: number;
+  offsetY: number;
 };
 
 /** Pointer dragging works on mouse, pen and touch; move buttons preserve keyboard access. */
@@ -20,14 +26,41 @@ export default function TimelineOrder({
   onChange: (order: string[]) => void;
 }) {
   const [drag, setDrag] = useState<Drag | null>(null);
+  const [settling, setSettling] = useState<string | null>(null);
+  const items = useRef(new Map<string, HTMLDivElement>());
+  const positions = useRef(new Map<string, number>());
+  useLayoutEffect(() => {
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    for (const [id, element] of items.current) {
+      const top = element.getBoundingClientRect().top;
+      const previous = positions.current.get(id);
+      if (!reduced && previous !== undefined && previous !== top) {
+        element.animate(
+          [
+            { transform: `translateY(${previous - top}px)` },
+            { transform: "translateY(0)" },
+          ],
+          { duration: 220, easing: "cubic-bezier(.2,.8,.2,1)" },
+        );
+      }
+    }
+    positions.current.clear();
+  }, [order]);
   const [announcement, setAnnouncement] = useState("");
-  function move(id: string, to: number) {
+  function move(id: string, to: number, landingTop?: number) {
     if (disabled) return;
     const from = order.indexOf(id);
-    if (from < 0 || to < 0 || to >= order.length || from === to) return;
+    if (from < 0 || to < 0 || to >= order.length) return;
+    if (from === to) {setSettling(id);return;}
     const next = [...order];
     next.splice(from, 1);
     next.splice(to, 0, id);
+    for (const [key, element] of items.current)
+      positions.current.set(key, element.getBoundingClientRect().top);
+    if (landingTop !== undefined) positions.current.set(id, landingTop);
+    setSettling(id);
     onChange(next);
     setAnnouncement(
       `Moved ${cards.find((c) => c.id === id)?.text} to position ${to + 1} of ${order.length}.`,
@@ -50,10 +83,17 @@ export default function TimelineOrder({
           const target = !disabled && drag?.overId === id && drag.id !== id;
           return (
             <div
+              ref={(element) => {
+                if (element) items.current.set(id, element);
+                else items.current.delete(id);
+              }}
+              onAnimationEnd={() => {
+                if (settling === id) setSettling(null);
+              }}
               role="listitem"
               data-timeline-id={id}
               key={id}
-              className={`card spread timeline-event ${active ? "dragging" : ""} ${target ? "drop-target" : ""}`}
+              className={`card spread timeline-event ${active ? "dragging" : ""} ${target ? (order.indexOf(drag!.id) < i ? "drop-target drop-after" : "drop-target drop-before") : ""} ${settling === id ? "settling" : ""}`}
             >
               <div className="row timeline-event-label">
                 <button
@@ -63,11 +103,21 @@ export default function TimelineOrder({
                   disabled={disabled}
                   onPointerDown={(e) => {
                     if (disabled || !e.isPrimary || e.button !== 0) return;
+                    const rect = e.currentTarget
+                      .closest<HTMLElement>("[data-timeline-id]")!
+                      .getBoundingClientRect();
+                    setSettling(null);
                     e.currentTarget.setPointerCapture(e.pointerId);
                     setDrag({
                       id,
                       pointerId: e.pointerId,
                       overId: id,
+                      left: rect.left,
+                      top: rect.top,
+                      width: rect.width,
+                      height: rect.height,
+                      offsetX: e.clientX - rect.left,
+                      offsetY: e.clientY - rect.top,
                     });
                   }}
                   onPointerMove={(e) => {
@@ -82,6 +132,8 @@ export default function TimelineOrder({
                       .find((element) => element && list?.contains(element));
                     setDrag({
                       ...drag,
+                      left: e.clientX - drag.offsetX,
+                      top: e.clientY - drag.offsetY,
                       overId: target?.dataset.timelineId ?? null,
                     });
                     if (e.clientY < 70) window.scrollBy(0, -14);
@@ -90,7 +142,7 @@ export default function TimelineOrder({
                   }}
                   onPointerUp={(e) => {
                     if (!drag || drag.pointerId !== e.pointerId) return;
-                    if (drag.overId) move(drag.id, order.indexOf(drag.overId));
+                    if (drag.overId) move(drag.id, order.indexOf(drag.overId), drag.top);
                     setDrag(null);
                   }}
                   onPointerCancel={() => setDrag(null)}
@@ -133,6 +185,24 @@ export default function TimelineOrder({
           );
         })}
       </div>
+      {!disabled && drag && (
+        <div
+          aria-hidden="true"
+          className="card timeline-floating"
+          style={{
+            left: drag.left,
+            top: drag.top,
+            width: drag.width,
+            minHeight: drag.height,
+          }}
+        >
+          <span className="timeline-floating-grip">⠿</span>
+          <span>
+            {order.indexOf(drag.id) + 1}.{" "}
+            {cards.find((card) => card.id === drag.id)?.text}
+          </span>
+        </div>
+      )}
       {!disabled && drag && (
         <p className="small" role="status">
           {drag.overId

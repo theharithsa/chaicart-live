@@ -707,3 +707,17 @@ test("captains can shortlist their region X entries without changing student con
     updateDoc(doc(db("other"), path("xEntries/coo")), { shortlisted: false }),
   );
 });
+
+test("captain can open a new review before it exists only for their region", async () => {
+  const captain = db("captain", "captain@example.com");
+  const empty = await assertSucceeds(
+    getDoc(doc(captain, path("reviews/network-linkedin__mumbai-1a"))),
+  );
+  assert.equal(empty.exists(), false);
+  await assertFails(
+    getDoc(doc(captain, path("reviews/network-linkedin__delhi-1a"))),
+  );
+  await assertFails(
+    getDoc(doc(db("other"), path("reviews/network-linkedin__mumbai-1a"))),
+  );
+});

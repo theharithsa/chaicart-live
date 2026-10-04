@@ -59,7 +59,8 @@ service cloud.firestore {
       && request.resource.data.url.matches('^https://(www\\.)?(x\\.com|twitter\\.com)/[^/]+/status/[0-9]+/?(\\?.*)?$') && request.resource.data.updatedAt==request.time;
    }
    match /reviews/{id}{
-    allow read:if teamReader(resource.data.teamId);
+    // A new activity has no review yet. Authorize that lookup from the team in its ID.
+    allow read:if (resource!=null && teamReader(resource.data.teamId)) || (resource==null && teamReader(id.split('__')[1]));
     allow create,update:if (facilitator() || captainTeam(request.resource.data.teamId))
       && request.resource.data.keys().hasOnly(['activity','teamId','region','points','comment','status','actor','updatedAt'])
       && validTeam(request.resource.data.teamId) && regionTeam(request.resource.data.region,request.resource.data.teamId)

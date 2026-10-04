@@ -150,7 +150,9 @@ export function ReviewEditor({
   activity: string;
 }) {
   const sub = useDocData<Submission>(
-    `sessions/${sid}/submissions/${activity}__${teamId}`,
+    activity.startsWith("network-")
+      ? null
+      : `sessions/${sid}/submissions/${activity}__${teamId}`,
   );
   const roster =
     useCollectionData<Student>(`sessions/${sid}/students`, "teamId", teamId) ??

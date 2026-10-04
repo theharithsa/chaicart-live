@@ -89,53 +89,13 @@ Google sign-in links an anonymous account in place, keeping its UID/profile/resp
 
 Venue Wi-Fi and a fallback hotspot are needed for live scoring. Cached data/drafts help through short interruptions; role reservations and score transactions require a connection. Do not treat pending offline writes as accepted final answers. First Google sign-in also needs internet. The app does not promise a fully offline workshop.
 
-Firebase Auth + Firestore + Hosting; no Cloud Functions or photo uploads are introduced. X entries store public post links. Keep listeners scoped, monitor reads/writes during rehearsal, and confirm actual quotas rather than assuming the expanded workshop fits a free tier.
+Firebase Auth + Firestore + Hosting, with a Cloud Function for protected telemetry forwarding; no photo uploads are introduced. X entries store public post links. Keep listeners scoped, monitor reads/writes during rehearsal, and confirm actual quotas rather than assuming the expanded workshop fits a free tier.
 
 See [the plan and audit](docs/PAPERLESS-APP-PLAN.md) and [release checks](docs/RELEASE-CHECKS.md).
 
 
 ## Dynatrace RUM and OpenTelemetry
 
-The shared workshop RUM tag is installed in `index.html`. Google sign-in restoration, account changes and sign-out update `dtrum.identifyUser(email)` (cleared on sign-out). The callback is optional and cannot block authentication. Captured errors use sanitized operation/error codes, not form contents.
+See [observability.md](observability.md) for the complete runbook covering Live, the Azure Demo and the GitHub Pages workshop. It includes deployed resources, RUM tags, browser/email identity, protected gateway setup, classic/platform authentication, correlation, metrics, demonstration steps and recovery instructions.
 
-`src/lib/firestore.ts` wraps the existing Firebase SDK calls with browser OTel spans. Reads inside a transaction share the parent transaction's trace and transaction ID. Finite listener spans measure initial load, errors and recovery. The wrappers do not change data, rules or scoring. Import instrumented calls from this module when adding new application operations.
-
-The protected gateway source is in `functions/`. It verifies Google Firebase ID tokens, derives UID/email from the verified token, bounds request size/timestamps/rate, and exports OTLP/HTTP protobuf. Client reports are diagnostic observations, not authoritative audit records. Internal Firestore processing is outside our instrumentation. The Dynatrace token is server-only; never put it in `VITE_*` configuration.
-
-### Optional RUM-only deployment
-
-```sh
-npm ci
-npm run build
-npx firebase-tools deploy --project chaicloud-workshop --only hosting --config firebase.rum-only.json
-```
-
-Browser OTel forwarding is disabled unless `VITE_TELEMETRY_ENABLED=true`. RUM remains active independently. This configuration does not require Firebase Blaze or a Function and does not send background requests to an unavailable gateway.
-
-### Activate the Firebase gateway
-
-Firebase Functions requires Blaze billing. Once enabled:
-
-```sh
-npm ci --prefix functions
-npm test --prefix functions
-npx firebase-tools functions:secrets:set DYNATRACE_PLATFORM_TOKEN --project chaicloud-workshop
-VITE_TELEMETRY_ENABLED=true npm run build
-npx firebase-tools deploy --project chaicloud-workshop --only functions:telemetry,hosting
-```
-
-Enter the platform token only at the secret prompt. Both the token scopes and its owning user's permissions must allow `openpipeline:logs:ingest`, `openpipeline:metrics:ingest` and `openpipeline:traces:ingest`. The gateway uses `https://indiacs.live.dynatrace.com/api/v2/otlp`, Bearer authentication, delta metrics and bounded exporters. Its hosting rewrite keeps the endpoint same-origin for RUM correlation.
-
-If Firebase billing remains disabled, the same validated gateway can run on the existing Azure App Service after configuring an explicit endpoint, origin allowlist and Dynatrace cross-origin trace propagation. Do not enable browser forwarding until its gateway is verified.
-
-See the [workshop observability runbook](https://github.com/theharithsa/chaicart-cloud-workshop/blob/main/chaicart-demo/docs/OBSERVABILITY.md) for fields, metrics, investigation queries and demonstrations. Ingestion permission does not grant dashboard or Grail query access.
-
-### Deployed telemetry gateway
-
-The `telemetryIngest` Node.js 22 Function is deployed in `asia-south1`, with Firebase Hosting forwarding `/api/telemetry` to it. The ingestion credential is stored in Secret Manager. Production browser forwarding is enabled by building with `VITE_TELEMETRY_ENABLED=true`; use that flag for subsequent production builds. Gateway requests require a verified Google Firebase identity.
-
-Dynatrace uses OTLP/HTTP binary protobuf at `https://indiacs.live.dynatrace.com/api/v2/otlp/v1/{traces,metrics,logs}` with a server-only classic `Api-Token` credential (platform tokens use `Bearer`). The direct endpoint does not support gRPC. A 403 reporting a missing `openpipeline:*:ingest` permission requires fixing both token scopes and the token owner permissions, rather than changing the endpoint.
-
-The production gateway uses a classic token. The existing secret name `DYNATRACE_PLATFORM_TOKEN` is retained for compatibility; the exporter selects `Api-Token` for classic `dt0c01` tokens. Required classic scopes are `openTelemetryTrace.ingest`, `metrics.ingest`, and `logs.ingest`.
-
-RUM identifies signed-in users by Google email. Signed-out visitors use `browser:<random UUID>`, persisted in local storage on each site origin. Sign-out restores that browser ID. This is not a hardware identifier and is not used for authorization; clearing storage resets it, and unavailable storage limits it to the current page.
+Production browser builds require `VITE_TELEMETRY_ENABLED=true`. The telemetry gateway is deployed on Firebase Blaze; its Dynatrace credential stays in Secret Manager. Signed-out RUM visitors use a persistent random browser ID and signed-in visitors use their Google email. Browser reports measure Firebase SDK operations, not Firestore internal server processing.

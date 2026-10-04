@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import paperless from "../../content/paperless.json";
 import type { FormActivity } from "../../content/activities";
 import { TEAM_BY_ID } from "../../content/teams";
 import { useDocData } from "../../lib/hooks";
@@ -41,6 +42,8 @@ export default function FormView({
     (activity.scope === "individual" || student.role === "COO");
   const team = TEAM_BY_ID[student.teamId];
   const variant = activity.variants?.[team.index % activity.variants.length];
+  const sharkCards = paperless.decks.find(d => d.id === 'shark')?.cards ?? [];
+  const sharkPlatform = sharkCards[[1, 1, 2, 2, 3, 4][team.index % 6]];
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -64,6 +67,7 @@ export default function FormView({
 
   return (
     <form className="stack" onSubmit={save}>
+      {activity.id === 'shark-pitch' && [sharkCards[0], sharkPlatform].filter(Boolean).map(card => <div className="card stack" key={card.title}><h3>{card.title}</h3><p className="muted small">{card.subtitle}</p><p>{card.body}</p></div>)}
       {variant && (
         <div className="card dark stack">
           <span className="kicker" style={{ color: "var(--clay)" }}>

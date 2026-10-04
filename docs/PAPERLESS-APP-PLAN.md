@@ -4,7 +4,7 @@ Implemented as the paperless release. See [release checks](RELEASE-CHECKS.md) fo
 
 # ChaiCart Live: paperless workshop implementation plan
 
-Status: proposed, source audit completed 4 October 2026. No app behavior or production Firebase changes made.
+Original audit completed 4 October 2026; implementation has since been deployed. See the release checks for current evidence and rehearsal requirements.
 
 ## Goal and boundaries
 

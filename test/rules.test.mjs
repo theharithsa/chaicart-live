@@ -56,6 +56,7 @@ before(async () => {
       port: 8185,
     },
   });
+  await env.clearFirestore();
   await env.withSecurityRulesDisabled(async (ctx) => {
     const d = ctx.firestore();
     await setDoc(doc(d, "admins/facilitator@example.com"), {
@@ -409,7 +410,7 @@ test("all paperless forms and studio submissions pass their schemas", async () =
   const manifest = {};
   const source = fs
     .readFileSync("src/content/activities.ts", "utf8")
-    .replace("import paperless from './paperless.json'", "");
+    .replace(/^import paperless from ['"]\.\/paperless\.json['"];?\r?\n/m, "");
   new Function(
     "exports",
     "paperless",

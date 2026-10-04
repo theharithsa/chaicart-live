@@ -5,7 +5,7 @@ const require = createRequire(import.meta.url);
 const ts = require(process.env.TYPESCRIPT_PATH ?? "typescript");
 const source = fs
   .readFileSync("src/content/activities.ts", "utf8")
-  .replace("import paperless from './paperless.json'", "");
+  .replace(/^import paperless from ['"]\.\/paperless\.json['"];?\r?\n/m, "");
 const js = ts.transpile(source, {
   target: ts.ScriptTarget.ES2023,
   module: ts.ModuleKind.CommonJS,

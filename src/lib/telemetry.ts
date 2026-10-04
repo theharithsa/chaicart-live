@@ -1,3 +1,4 @@
+import { identifyRumUser } from "./rum-identity";
 import { ROOT_CONTEXT, trace, SpanKind, SpanStatusCode, type Span } from "@opentelemetry/api";
 import { WebTracerProvider, BatchSpanProcessor, type ReadableSpan, type SpanExporter } from "@opentelemetry/sdk-trace-web";
 import { resourceFromAttributes } from "@opentelemetry/resources";
@@ -6,7 +7,6 @@ import type { User } from "firebase/auth";
 type Rum = { identifyUser: (email: string) => void; reportError?: (error: string) => void };
 declare global { interface Window { dtrum?: Rum } }
 let user: User | null = null;
-let identifyTimer: ReturnType<typeof setInterval> | undefined;
 let sequence = 0;
 // Activate only after the protected gateway is deployed. RUM works independently.
 const enabled = import.meta.env.VITE_TELEMETRY_ENABLED === "true";
@@ -41,13 +41,7 @@ export function setTelemetryUser(next: User | null) {
   const previous = user;
   user = next;
   if (previous?.uid !== next?.uid) sequence++;
-  clearInterval(identifyTimer);
-  let attempts = 0;
-  const identify = () => {
-    try { if (window.dtrum) { window.dtrum.identifyUser(next?.email ?? ""); return true; } } catch { /* Telemetry never interrupts sign-in. */ }
-    return false;
-  };
-  if (!identify()) identifyTimer = setInterval(() => { if (identify() || ++attempts >= 20) clearInterval(identifyTimer); }, 500);
+  identifyRumUser(next?.email ?? "");
 }
 
 export function operationAttributes(path?: string): Record<string, string> {

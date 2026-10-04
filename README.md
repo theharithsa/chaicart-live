@@ -137,3 +137,5 @@ The `telemetryIngest` Node.js 22 Function is deployed in `asia-south1`, with Fir
 Dynatrace uses OTLP/HTTP binary protobuf at `https://indiacs.live.dynatrace.com/api/v2/otlp/v1/{traces,metrics,logs}` with a server-only classic `Api-Token` credential (platform tokens use `Bearer`). The direct endpoint does not support gRPC. A 403 reporting a missing `openpipeline:*:ingest` permission requires fixing both token scopes and the token owner permissions, rather than changing the endpoint.
 
 The production gateway uses a classic token. The existing secret name `DYNATRACE_PLATFORM_TOKEN` is retained for compatibility; the exporter selects `Api-Token` for classic `dt0c01` tokens. Required classic scopes are `openTelemetryTrace.ingest`, `metrics.ingest`, and `logs.ingest`.
+
+RUM identifies signed-in users by Google email. Signed-out visitors use `browser:<random UUID>`, persisted in local storage on each site origin. Sign-out restores that browser ID. This is not a hardware identifier and is not used for authorization; clearing storage resets it, and unavailable storage limits it to the current page.

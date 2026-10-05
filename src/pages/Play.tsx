@@ -152,9 +152,13 @@ export default function Play() {
                   activity.scope === "individual") ||
                 (activity.kind === "quiz" && activity.mode === "poll")
                   ? "Submit your own response."
-                  : student.role === "COO"
-                    ? "You submit team answers after discussing together."
-                    : "Your COO submits shared team answers."}
+                  : activity.id === "factory"
+                    ? "Follow the round instructions below. Assigned roles process each delivery stage."
+                    : ["kitchen", "follow-order"].includes(activity.id)
+                      ? "Assigned volunteers advance their service station below. Your captain reviews completion."
+                      : student.role === "COO"
+                        ? "You submit team answers after discussing together."
+                        : "Your COO submits shared team answers."}
               </p>
             </div>
             {session.state.phase === "locked" && (

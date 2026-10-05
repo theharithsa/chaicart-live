@@ -6,18 +6,36 @@ export default function Home() {
   const [code, setCode] = useState(storedSession());
   const navigate = useNavigate();
   return (
-    <div className="page stack" style={{ gap: 18, paddingTop: 48 }}>
+    <main className="page landing stack" style={{ gap: 22, paddingTop: 48 }}>
       <div className="star" />
       <div>
         <div className="kicker">
           Cloud Computing &amp; Business Systems Workshop
         </div>
-        <h1 style={{ marginTop: 8 }}>ChaiCart Live</h1>
+        <h1 style={{ marginTop: 8 }}>
+          Your startup.
+          <br />
+          Two days to build it.
+        </h1>
         <p>
-          Build a startup in the cloud with your team, then keep it alive when
-          things break.
+          Join four teammates, build your cloud architecture, and put it to the
+          test. Your activities, feedback and credits live here.
         </p>
       </div>
+      <ol className="join-steps" aria-label="How to join">
+        <li>
+          <b>01</b>
+          <span>Google sign-in</span>
+        </li>
+        <li>
+          <b>02</b>
+          <span>Team code</span>
+        </li>
+        <li>
+          <b>03</b>
+          <span>Choose your role</span>
+        </li>
+      </ol>
       <form
         className="card stack"
         onSubmit={(e) => {
@@ -32,17 +50,23 @@ export default function Home() {
             onChange={(e) => setCode(normaliseCode(e.target.value))}
             placeholder="e.g. CHAI26"
             autoCapitalize="characters"
+            aria-describedby="session-help"
+            autoComplete="off"
+            required
           />
         </label>
         <button className="btn lg block" disabled={!code}>
           Join the workshop
         </button>
-        <p className="muted small">Or scan the QR code on the projector.</p>
+        <p id="session-help" className="muted small">
+          Use the session code on the projector. Your captain gives you a
+          separate team code after sign-in.
+        </p>
       </form>
       <p className="small muted center">
         Facilitator or captain? <Link to="/console">Facilitator console</Link> ·{" "}
         <Link to="/captain">Captain dashboard</Link>
       </p>
-    </div>
+    </main>
   );
 }

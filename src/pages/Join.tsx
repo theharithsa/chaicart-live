@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { googleSignIn, isGoogleStudent } from "../lib/auth";
 import { joinTeam } from "../lib/membership";
@@ -93,6 +93,20 @@ export default function Join() {
           one place.
         </p>
       </div>
+      <ol className="join-steps" aria-label="Registration progress">
+        <li aria-current={!isGoogleStudent(user) ? "step" : undefined}>
+          <b>01</b>
+          <span>Sign in</span>
+        </li>
+        <li aria-current={isGoogleStudent(user) ? "step" : undefined}>
+          <b>02</b>
+          <span>Team &amp; code</span>
+        </li>
+        <li>
+          <b>03</b>
+          <span>Your role</span>
+        </li>
+      </ol>
       {!isGoogleStudent(user) ? (
         <div className="card stack">
           <p>
@@ -136,6 +150,9 @@ export default function Join() {
               value={teamCode}
               onChange={(e) => setTeamCode(e.target.value.toUpperCase())}
               maxLength={20}
+              autoCapitalize="characters"
+              autoComplete="off"
+              required
             />
           </label>
           <label className="field">
@@ -212,12 +229,17 @@ export default function Join() {
               ))}
             </div>
           </div>
-          {error && <div className="error">{error}</div>}
+          {error && (
+            <div className="error" role="alert">
+              {error}
+            </div>
+          )}
           <button className="btn lg block" disabled={!ready || busy || !user}>
             {busy ? "Joining…" : "Join"}
           </button>
         </form>
       )}
+      <Link to="/">← Change session</Link>
     </div>
   );
 }

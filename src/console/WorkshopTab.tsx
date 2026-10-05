@@ -1,3 +1,4 @@
+import { activityTitle } from "../lib/presentation";
 import { useState } from "react";
 import { doc, serverTimestamp, setDoc, updateDoc } from "../lib/firestore";
 import { db } from "../firebase";
@@ -115,32 +116,48 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
   );
   return (
     <div className="stack">
-      <h2>Workshop review and controls</h2>
+      <div>
+        <div className="kicker">Review desk</div>
+        <h2>From submission to credits.</h2>
+        <p>
+          Captains review the evidence. You apply the award to the official
+          ledger.
+        </p>
+      </div>
       {status && <p role="status">{status}</p>}
-      <div className="card stack">
-        <h3>Team codes (share with each team)</h3>
+      <details className="card workshop-tool">
+        <summary>Team codes (share with each team)</summary>
         <div className="grid4">
           {teams.map((t) => (
             <p key={t.id}>
-              {t.id}
+              {TEAMS.find((team) => team.id === t.id)?.name ?? t.id}
               <br />
               <code>{t.joinCode}</code>
             </p>
           ))}
         </div>
-      </div>
+      </details>
       <div className="card stack">
-        <h3>Captain approvals</h3>
+        <h3>Captain proposals</h3>
+        {!reviews.length && (
+          <p className="muted">
+            No proposals yet. Captains will send reviewed work here.
+          </p>
+        )}
         {reviews.map((r) => (
           <div className="spread" key={r.id}>
             <span>
-              {r.teamId} · {r.activity} · +{r.points}
+              {TEAMS.find((team) => team.id === r.teamId)?.name ?? r.teamId} ·{" "}
+              {activityTitle(r.activity)} · {r.points} credits proposed
               <br />
               {r.comment}
             </span>
             <button
               className="btn sm"
-              disabled={!!ctx.applied[`review:${r.activity}:${r.teamId}`]}
+              disabled={
+                r.status !== "approved" ||
+                !!ctx.applied[`review:${r.activity}:${r.teamId}`]
+              }
               onClick={() => run(() => apply(r))}
             >
               {ctx.applied[`review:${r.activity}:${r.teamId}`]
@@ -198,9 +215,9 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
           certificate.
         </p>
       </div>
-      <div className="card stack">
-        <h3>Awards</h3>
-        <select value={award} onChange={(e) => setAward(e.target.value)}>
+      <details className="card workshop-tool">
+        <summary>Awards</summary>
+        <select aria-label="Award category" value={award} onChange={(e) => setAward(e.target.value)}>
           {[
             "Best Workshop Post or Photo",
             "Sherlock Award",
@@ -215,7 +232,7 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
             <option key={a}>{a}</option>
           ))}
         </select>
-        <select value={winner} onChange={(e) => setWinner(e.target.value)}>
+        <select aria-label="Award recipient" value={winner} onChange={(e) => setWinner(e.target.value)}>
           <option value="">Choose recipient</option>
           {students.map((s) => (
             <option value={s.id} key={s.id}>
@@ -238,9 +255,9 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
             {a.title}: {a.name}
           </p>
         ))}
-      </div>
-      <div className="card stack">
-        <h3>Cloud Bingo caller</h3>
+      </details>
+      <details className="card workshop-tool">
+        <summary>Cloud Bingo caller</summary>
         {keys?.bingo.map(({ term, clue }) => (
           <div className="spread" key={term}>
             <span>{clue}</span>
@@ -261,9 +278,9 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
             </button>
           </div>
         ))}
-      </div>
-      <div className="card stack">
-        <h3>Digital Delivery Factory</h3>
+      </details>
+      <details className="card workshop-tool">
+        <summary>Digital Delivery Factory</summary>
         <p>
           Start each round for three minutes. Round1: COO serial work. Round2:
           CEO/CTO/SRE/COO pipeline. Staff judges +50 region winners from the
@@ -334,10 +351,11 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
             </tbody>
           </table>
         </div>
-      </div>
-      <div className="card stack">
-        <h3>Station games: volunteers and tickets</h3>
+      </details>
+      <details className="card workshop-tool">
+        <summary>Station games: volunteers and tickets</summary>
         <select
+          aria-label="Station activity"
           value={stationActivity}
           onChange={(e) => {
             setStationActivity(e.target.value);
@@ -349,6 +367,7 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
         </select>
         {stationActivity === "kitchen" && (
           <select
+            aria-label="Kitchen demonstration mode"
             value={kitchenMode}
             onChange={(e) => {
               setKitchenMode(e.target.value);
@@ -422,7 +441,7 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
             </button>
           </div>
         ))}
-      </div>
+      </details>
       <div className="card stack">
         <h3>Overall bonuses</h3>
         <p>

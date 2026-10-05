@@ -17,13 +17,13 @@ export default function ConnectionStatus() {
   return (
     <>
       {!online && (
-        <div className="error" role="status">
+        <div className="connection-banner" role="status">
           Offline: drafts stay on this device. Scored submissions need server
           confirmation.
         </div>
       )}
       {error && (
-        <div className="error" role="alert">
+        <div className="connection-banner error" role="alert">
           {error}{" "}
           <button className="btn sm ghost" onClick={() => setError("")}>
             Dismiss

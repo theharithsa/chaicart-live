@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
@@ -25,6 +26,7 @@ export function AdminGate({
 }: {
   children: (email: string) => React.ReactNode;
 }) {
+  const [error, setError] = useState("");
   const user = useAuthUser();
   const isAdmin = useIsAdmin(user);
   if (user === undefined || (user && user.email && isAdmin === undefined))
@@ -35,17 +37,26 @@ export function AdminGate({
         <div className="star" />
         <h1>Facilitator console</h1>
         <p>
-          Sign in with the Google account registered as a facilitator or
-          captain.
+          Sign in with your authorized facilitator Google account. Launch
+          activities, review captain proposals and manage the workshop.
         </p>
         <button
           className="btn lg"
           onClick={() =>
-            googleSignIn().catch((e) => alert((e as Error).message))
+            googleSignIn().catch((e) => setError((e as Error).message))
           }
         >
           Sign in with Google
         </button>
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
+        <p className="small">
+          Region captain? <Link to="/captain">Open your review desk</Link>
+        </p>
+        <Link to="/">← Workshop home</Link>
       </div>
     );
   }

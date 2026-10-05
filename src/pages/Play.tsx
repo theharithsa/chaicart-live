@@ -133,6 +133,30 @@ export default function Play() {
               <h2 style={{ marginTop: 4 }}>{activity.title}</h2>
               {activity.intro && <p>{activity.intro}</p>}
             </div>
+            <div className="activity-state card">
+              <span className="pill">
+                {(activity.kind === "form" &&
+                  activity.scope === "individual") ||
+                (activity.kind === "quiz" && activity.mode === "poll")
+                  ? "Individual response"
+                  : "Team activity"}
+              </span>
+              <p className="small">
+                {session.state.phase === "open"
+                  ? "Open for participation"
+                  : session.state.phase === "revealed"
+                    ? "Results revealed"
+                    : "Submissions closed"}{" "}
+                · Your role: {student.role}.{" "}
+                {(activity.kind === "form" &&
+                  activity.scope === "individual") ||
+                (activity.kind === "quiz" && activity.mode === "poll")
+                  ? "Submit your own response."
+                  : student.role === "COO"
+                    ? "You submit team answers after discussing together."
+                    : "Your COO submits shared team answers."}
+              </p>
+            </div>
             {session.state.phase === "locked" && (
               <div className="pill red">Answers are locked</div>
             )}

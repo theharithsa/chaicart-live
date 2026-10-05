@@ -1,3 +1,4 @@
+import { componentLabel } from "../../lib/presentation";
 import { useEffect, useState } from "react";
 import { doc, runTransaction, serverTimestamp } from "../../lib/firestore";
 import { db } from "../../firebase";
@@ -189,7 +190,7 @@ export default function StudioView(
                     )
                   }
                 />
-                {c}
+                {componentLabel(c)}
               </label>
             ))}
           </div>

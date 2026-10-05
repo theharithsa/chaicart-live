@@ -1,3 +1,6 @@
+import { signOut } from "firebase/auth";
+import AnswerSummary from "../components/AnswerSummary";
+import { activityTitle } from "../lib/presentation";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { doc, serverTimestamp, setDoc } from "../lib/firestore";
@@ -7,7 +10,6 @@ import { useAuthUser, useCollectionData, useDocData } from "../lib/hooks";
 import { normaliseCode, storedSession } from "../lib/session";
 import { REGIONS, TEAMS, TEAM_BY_ID } from "../content/teams";
 import { SCORE_RUBRICS } from "../content/workshop";
-import { ACTIVITY_BY_ID } from "../content/activities";
 import type { SessionDoc, Student, Submission } from "../types";
 import { validBingo } from "../lib/bingo";
 import ReviewTeam from "../console/ReviewTeam";
@@ -33,7 +35,15 @@ export default function Captain() {
   if (!isGoogleStudent(user))
     return (
       <div className="page stack">
-        <h1>Region captain</h1>
+        <div className="kicker">Staff workspace</div>
+        <h1>Guide your region.</h1>
+        <p>
+          Sign in with the Google account assigned by the facilitator. Share
+          team codes, review work and propose credits for your six teams.
+        </p>
+        <p className="small muted">
+          Student team roles do not grant captain access.
+        </p>
         <button
           className="btn"
           onClick={() =>
@@ -43,13 +53,22 @@ export default function Captain() {
           Sign in with Google
         </button>
         {error && <p role="alert">{error}</p>}
+        <Link to="/">← Back to workshop</Link>
       </div>
     );
   const teams = TEAMS.filter((t) => t.region === staff?.region);
   const selected = teams.find((t) => t.id === teamId)?.id ?? teams[0]?.id;
   return (
     <div className="page wide stack">
-      <h1>Captain dashboard</h1>
+      <div className="spread">
+        <div>
+          <div className="kicker">Regional review desk</div>
+          <h1>Captain dashboard</h1>
+        </div>
+        <button className="btn ghost" onClick={() => signOut(auth)}>
+          Switch account
+        </button>
+      </div>
       <label className="field">
         Session code
         <input
@@ -230,7 +249,8 @@ export function ReviewEditor({
   }
   return (
     <div className="card stack">
-      <h3>{ACTIVITY_BY_ID[activity]?.title ?? activity}</h3>
+      <div className="kicker">Review → Propose → Facilitator applies</div>
+      <h3>{activityTitle(activity)}</h3>
       <p>{rubric.help}</p>
       {network ? (
         <p>
@@ -245,9 +265,16 @@ export function ReviewEditor({
                 Submitted by {sub.byName} ·{" "}
                 {sub.updatedAt?.toDate().toLocaleTimeString()}
               </p>
-              <pre className="response-text">
-                {JSON.stringify(values ?? sub, null, 2)}
-              </pre>
+              <AnswerSummary
+                activity={activity}
+                values={
+                  values ??
+                  sub.values ??
+                  sub.accusation ??
+                  sub.answers ??
+                  sub.choices
+                }
+              />
             </>
           ) : (
             <p>No submission yet.</p>
@@ -288,7 +315,9 @@ export function ReviewEditor({
       </button>
       {saved && (
         <p>
-          Previous review: {saved.points} · {saved.status} · {saved.comment}
+          Previous review: {saved.points} credits proposed ·{" "}
+          {saved.status === "approved" ? "Ready for facilitator" : saved.status}{" "}
+          · {saved.comment}
         </p>
       )}
       {status && <p role="status">{status}</p>}

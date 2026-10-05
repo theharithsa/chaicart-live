@@ -1,3 +1,5 @@
+import AnswerSummary from "../../components/AnswerSummary";
+import { activityTitle } from "../../lib/presentation";
 import { useState } from "react";
 import { signOut } from "firebase/auth";
 import { doc, serverTimestamp, setDoc } from "../../lib/firestore";
@@ -144,26 +146,39 @@ export default function WorkshopHub({
           </div>
           <div className="card stack">
             <h3>Submitted work</h3>
+            {!submissions.length && (
+              <p className="muted">
+                Your team’s confirmed submissions will appear here.
+              </p>
+            )}
             {submissions.map((s) => (
               <details key={s.id}>
                 <summary>
                   {ACTIVITY_BY_ID[s.activity]?.title ?? s.activity} · {s.byName}
                 </summary>
-                <pre className="response-text">
-                  {JSON.stringify(
-                    s.values ?? s.accusation ?? s.answers ?? s.choices,
-                    null,
-                    2,
-                  )}
-                </pre>
+                <AnswerSummary
+                  activity={s.activity}
+                  values={s.values ?? s.accusation ?? s.answers ?? s.choices}
+                />
               </details>
             ))}
           </div>
           <div className="card stack">
             <h3>Captain feedback</h3>
+            <p className="small muted">
+              Reviewed points become credits only after the facilitator applies
+              them.
+            </p>
+            {!reviews.length && (
+              <p className="muted">
+                No reviews yet. Your captain will review submitted team work.
+              </p>
+            )}
             {reviews.map((r) => (
               <p key={r.id}>
-                {r.activity}: {r.status} · {r.points} credits proposed
+                {activityTitle(r.activity)} ·{" "}
+                {r.status === "approved" ? "Reviewed" : r.status} · {r.points}{" "}
+                credits proposed
                 <br />
                 {r.comment}
               </p>
@@ -171,6 +186,11 @@ export default function WorkshopHub({
           </div>
           <div className="card stack">
             <h3>Credit history</h3>
+            {!ledger.length && (
+              <p className="muted">
+                No credit changes yet. Every applied award appears here.
+              </p>
+            )}
             {ledger.map((e) => (
               <p key={e.id}>
                 {e.delta > 0 ? "+" : ""}

@@ -1,9 +1,9 @@
+import { activityTitle } from "../lib/presentation";
 import { doc, updateDoc } from "../lib/firestore";
 import { db } from "../firebase";
 import { useState } from "react";
 import { useCollectionData } from "../lib/hooks";
 import { SCORE_RUBRICS } from "../content/workshop";
-import { ACTIVITY_BY_ID } from "../content/activities";
 import type { Student } from "../types";
 import { ReviewEditor } from "../pages/Captain";
 export default function ReviewTeam({
@@ -26,10 +26,16 @@ export default function ReviewTeam({
   return (
     <div className="stack">
       <div className="card">
-        <h3>Roster ({roster.length}/5)</h3>
+        <h3>Team readiness · {roster.length}/5 joined</h3>
+        {!roster.length && (
+          <p className="muted">
+            Share this team’s code so students can sign in and claim their
+            roles.
+          </p>
+        )}
         {roster.map((s) => (
           <p key={s.id}>
-            {s.name} · {s.role} · Semester{s.semester}
+            {s.name} · {s.role} · Semester {s.semester}
           </p>
         ))}
       </div>
@@ -38,7 +44,7 @@ export default function ReviewTeam({
         <select value={activity} onChange={(e) => setActivity(e.target.value)}>
           {Object.keys(SCORE_RUBRICS).map((a) => (
             <option key={a} value={a}>
-              {ACTIVITY_BY_ID[a]?.title ?? a}
+              {activityTitle(a)}
             </option>
           ))}
         </select>
@@ -51,6 +57,9 @@ export default function ReviewTeam({
       />
       <div className="card">
         <h3>X award entries</h3>
+        {!entries.length && (
+          <p className="muted">No post or photo entries submitted yet.</p>
+        )}
         {entries.map((e) => (
           <p key={e.id}>
             <a href={e.url} target="_blank" rel="noreferrer">

@@ -31,7 +31,8 @@ export const telemetryIngest = onRequest({ region: 'asia-south1', secrets: [plat
   await telemetry.request(req, res, async () => {
     telemetry.enrich({ 'user.id': actor.uid, 'user.email': actor.email });
     const readable = clientSpans(telemetry, events, actor);
-    const result = await new Promise(resolve => telemetry.exporter.export(readable, resolve));
+    const result = await telemetry.span('telemetry.export.browser_batch', { 'telemetry.batch.size': events.length }, () => new Promise(resolve => telemetry.exporter.export(readable, resolve)));
+    telemetry.log(result.code === 0 ? 'INFO' : 'ERROR', 'Browser telemetry batch processed', { 'event.name': 'telemetry.batch.processed', 'telemetry.batch.size': events.length, 'telemetry.outcome': result.code === 0 ? 'success' : 'failure' });
     if (result.code !== 0) { res.status(503).json({ error: 'Telemetry export unavailable' }); return; }
     // Flush all signals before a serverless instance can be suspended. OTel does not
     // block the student's Firestore work, only this background telemetry request.

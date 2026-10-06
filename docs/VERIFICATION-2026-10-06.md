@@ -16,7 +16,7 @@ The changes were tested with disposable Google identities and sessions in `demo-
 
 Additional checks: atomic session creation succeeds with protected content; missing content fails without a partial session. Staff controls and student pages reported no browser runtime errors. The existing runtime identity’s Firestore access was checked; no new project IAM role was granted. An unauthenticated request to the deployed callable returned 401/UNAUTHENTICATED.
 
-Validation: production build; lint with only existing Fast Refresh warnings; 31 Firestore/backend regression tests including 120 students joining 24 teams; 9 backend policy/telemetry unit tests; final targeted privacy/schema tests and backend integration rerun. CI runs the emulator files sequentially to avoid fixture interference.
+Validation: production build; lint with only existing Fast Refresh warnings; 31 Firestore/backend regression tests including 120 students joining 24 teams; 10 backend policy/telemetry unit tests; final targeted privacy/schema tests and backend integration rerun. CI runs the emulator files sequentially to avoid fixture interference.
 
 Scoring implication: five participants × eight correct answers × 100 = 4,000 team credits in Cloud or Not. Recap quizzes remain +10 per correct team answer. Existing Cloud answers are retained and scored only when a facilitator explicitly reveals/scores the question; there is no automatic backfill.
 

@@ -89,3 +89,17 @@ test("callable correlation accepts only valid IDs, never client-supplied identit
     null,
   );
 });
+
+test("coercible arrays and prototype names cannot pass workshop validation", () => {
+  assert.equal(canAward({ region: "west" }, ["mumbai-1a"]), false);
+  assert.throws(() => checkReviewLimit("__proto__", "mumbai-1a", 50, {}));
+  assert.throws(() => checkReviewLimit(["architecture"], "mumbai-1a", 50, {}));
+  assert.equal(
+    correlationContext({
+      traceId: ["1234567890abcdef1234567890abcdef"],
+      spanId: "1234567890abcdef",
+      transactionId: "12345678-1234-1234-1234-123456789012",
+    }),
+    null,
+  );
+});

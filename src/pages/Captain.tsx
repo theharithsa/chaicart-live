@@ -219,7 +219,9 @@ export function ReviewEditor({
   const values = sub?.values as Record<string, unknown> | undefined;
   const correct =
     activity === "timeline"
-      ? JSON.stringify(values?.order) === JSON.stringify(keys?.timeline)
+      ? Array.isArray(values?.order) &&
+        !!keys?.timeline?.length &&
+        JSON.stringify(values.order) === JSON.stringify(keys.timeline)
       : undefined;
   const serviceScore =
     activity === "service-sort"
@@ -244,7 +246,7 @@ export function ReviewEditor({
           : network
             ? 100
             : (serviceScore ?? Number(points));
-      if (!Number.isFinite(p) || p < 0 || p > rubric.max)
+      if (!Number.isInteger(p) || p < 0 || p > rubric.max)
         throw new Error("Points outside this rubric.");
       if (network && !complete)
         throw new Error("All five teammates must complete the activity.");

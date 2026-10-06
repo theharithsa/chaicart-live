@@ -16,6 +16,7 @@ export const reviewLimits = {
   factory: 50,
 };
 export function teamRegion(teamId) {
+  if (typeof teamId !== "string") return null;
   const match = /^(mumbai|chennai|pune|delhi)-1[a-f]$/.exec(teamId || "");
   return (
     match &&
@@ -52,6 +53,8 @@ export function cloudQuestionResults(students, submissions, question, correct) {
   });
 }
 export function checkReviewLimit(activity, teamId, points, applied) {
+  if (typeof activity !== "string" || !Object.hasOwn(reviewLimits, activity))
+    throw new Error("Unknown review rubric.");
   if (
     !Number.isInteger(points) ||
     points < 0 ||
@@ -85,6 +88,9 @@ export function correlationContext(value) {
   if (
     !value ||
     typeof value !== "object" ||
+    ["traceId", "spanId", "transactionId"].some(
+      (k) => typeof value[k] !== "string",
+    ) ||
     !/^[a-f0-9]{32}$/.test(value.traceId || "") ||
     /^0+$/.test(value.traceId) ||
     !/^[a-f0-9]{16}$/.test(value.spanId || "") ||

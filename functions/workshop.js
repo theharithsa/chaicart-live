@@ -27,7 +27,7 @@ export async function executeWorkshopAction(db, actor, data) {
   const { sid, action } = data || {};
   if (!ACTIONS.has(action))
     fail("invalid-argument", "Unknown workshop action.");
-  if (!/^[A-Z0-9-]{4,16}$/.test(sid || ""))
+  if (typeof sid !== "string" || !/^[A-Z0-9-]{4,16}$/.test(sid))
     fail("invalid-argument", "Invalid session code.");
   const base = db.doc(`sessions/${sid}`);
   async function access(tx) {
@@ -166,7 +166,7 @@ export async function executeWorkshopAction(db, actor, data) {
           "Lock the current question before scoring.",
         );
       const correct = keys.data()?.QUIZ_KEYS?.["cloud-or-not"]?.[qi]?.answer;
-      if (!Number.isInteger(correct))
+      if (!Number.isInteger(correct) || correct < 0 || correct > 2)
         fail("failed-precondition", "Quiz answer key is not available.");
       const rows = cloudQuestionResults(
         students.docs.map((d) => ({ id: d.id, ...d.data() })),
@@ -243,8 +243,11 @@ export async function executeWorkshopAction(db, actor, data) {
           tx.get(base.collection("private").doc("activityKeys")),
         ]);
         if (
+          !Array.isArray(sub.data()?.values?.order) ||
+          !Array.isArray(keys.data()?.timeline) ||
+          keys.data().timeline.length === 0 ||
           JSON.stringify(sub.data()?.values?.order) !==
-          JSON.stringify(keys.data()?.timeline)
+            JSON.stringify(keys.data()?.timeline)
         )
           fail(
             "failed-precondition",
@@ -291,7 +294,9 @@ export async function executeWorkshopAction(db, actor, data) {
         typeof reason !== "string" ||
         !reason.trim() ||
         reason.length > 500 ||
-        !/^[0-9a-f-]{36}$/.test(operationId || "") ||
+        typeof operationId !== "string" ||
+        !/^[0-9a-f-]{36}$/.test(operationId) ||
+        typeof activity !== "string" ||
         !/^[a-z0-9-]{1,50}$/.test(activity || "")
       )
         fail(

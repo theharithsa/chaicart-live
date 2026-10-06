@@ -1,3 +1,4 @@
+import { StudentWorkDetails } from "./StudentWork";
 import { doc, runTransaction } from "../lib/firestore";
 import { db } from "../firebase";
 import { REGIONS, TEAMS, TEAM_BY_ID } from "../content/teams";
@@ -83,22 +84,35 @@ export default function StudentsTab({ ctx }: { ctx: ConsoleCtx }) {
                     </span>
                   </div>
                   {members.map((m) => (
-                    <div key={m.id} className="spread tiny">
-                      <span>
-                        {m.name} · {m.role} · S{m.semester} {m.branch}
-                      </span>
-                      <select
-                        style={{ width: 110, padding: "2px 4px", fontSize: 12 }}
-                        value={m.teamId}
-                        onChange={(e) => move(m.id, e.target.value)}
-                        aria-label={`Move ${m.name}`}
-                      >
-                        {TEAMS.map((x) => (
-                          <option key={x.id} value={x.id}>
-                            {x.name}
-                          </option>
-                        ))}
-                      </select>
+                    <div key={m.id} className="stack tiny">
+                      <div className="spread">
+                        <span>
+                          {m.name} · {m.role} · S{m.semester} {m.branch}
+                        </span>
+                        <select
+                          style={{
+                            width: 110,
+                            padding: "2px 4px",
+                            fontSize: 12,
+                          }}
+                          value={m.teamId}
+                          onChange={(e) => move(m.id, e.target.value)}
+                          aria-label={`Move ${m.name}`}
+                        >
+                          {TEAMS.map((x) => (
+                            <option key={x.id} value={x.id}>
+                              {x.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <StudentWorkDetails
+                        facilitator
+                        sid={sid}
+                        uid={m.id}
+                        teamId={m.teamId}
+                        label={`View ${m.name}’s submitted work`}
+                      />
                     </div>
                   ))}
                 </div>

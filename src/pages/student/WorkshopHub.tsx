@@ -39,6 +39,12 @@ export default function WorkshopHub({
       "scope",
       "team",
     ) ?? [];
+  const cloudAnswers = useDocData<Submission>(
+    `sessions/${sid}/submissions/cloud-or-not__${uid}`,
+  );
+  const cloudScore = useDocData<{ credits: number }>(
+    `sessions/${sid}/quizResults/${uid}`,
+  );
   const plan = useDocData<Submission>(
     `sessions/${sid}/submissions/plan__${uid}`,
   );
@@ -164,10 +170,22 @@ export default function WorkshopHub({
             ))}
           </div>
           <div className="card stack">
+            <h3>Your Cloud or Not answers</h3>
+            <p>
+              {cloudScore
+                ? `${cloudScore.credits} personal credits earned and included in your team score.`
+                : "Credits appear when the facilitator reveals and scores each question."}
+            </p>
+            <AnswerSummary
+              activity="cloud-or-not"
+              values={cloudAnswers?.answers}
+            />
+          </div>
+          <div className="card stack">
             <h3>Captain feedback</h3>
             <p className="small muted">
-              Reviewed points become credits only after the facilitator applies
-              them.
+              Reviewed points become credits when a captain or facilitator
+              applies the award. Each reviewed award is applied once.
             </p>
             {!reviews.length && (
               <p className="muted">

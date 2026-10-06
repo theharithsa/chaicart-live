@@ -8,6 +8,7 @@ import FormPanel from "./panels/FormPanel";
 import VotePanel from "./panels/VotePanel";
 import MysteryPanel from "./panels/MysteryPanel";
 import BudgetPanel from "./panels/BudgetPanel";
+import LeaderboardTab from "./LeaderboardTab";
 import BillPanel from "./panels/BillPanel";
 
 const TIMERS = [1, 2, 3, 5, 7, 8, 10, 15, 25];
@@ -30,6 +31,7 @@ const appliedKeyFor = (a: Activity) =>
 
 export default function RunTab({ ctx }: { ctx: ConsoleCtx }) {
   const { sid, session } = ctx;
+  const [showBoard, setShowBoard] = useState(false);
   const [selId, setSelId] = useState(
     session.currentActivity ?? ACTIVITIES[0].id,
   );
@@ -135,7 +137,12 @@ export default function RunTab({ ctx }: { ctx: ConsoleCtx }) {
               <button
                 key={s.id}
                 className={`btn sm ${session.screen === s.id ? "" : "ghost"}`}
-                onClick={() => patchSession(sid, { screen: s.id })}
+                onClick={() => {
+                  setShowBoard(s.id === "leaderboard");
+                  patchSession(sid, { screen: s.id }).catch((e) =>
+                    alert((e as Error).message),
+                  );
+                }}
               >
                 {s.label}
               </button>
@@ -163,6 +170,12 @@ export default function RunTab({ ctx }: { ctx: ConsoleCtx }) {
           </div>
         </div>
 
+        {showBoard && (
+          <div className="card stack">
+            <h3>Live team leaderboard</h3>
+            <LeaderboardTab ctx={ctx} />
+          </div>
+        )}
         {activity.kind === "studio" && (
           <div className="card">
             <p>{activity.intro}</p>

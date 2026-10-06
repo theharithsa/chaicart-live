@@ -25,3 +25,8 @@ test('imported client spans and logs use verified identity and matching trace co
   assert.equal(records[0][2]['transaction.id'], event.attributes['transaction.id']);
   assert.equal(span.resource.attributes['service.name'], 'chaicart-live-browser');
 });
+
+test('workshop actions are exported but arbitrary workshop operations remain blocked', () => {
+  assert.equal(validateEvents({ events: [{ ...event, name: 'workshop.applyReview' }] }, now)[0].name, 'workshop.applyReview');
+  assert.throws(() => validateEvents({ events: [{ ...event, name: 'workshop.grantAdmin' }] }, now));
+});

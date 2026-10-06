@@ -232,8 +232,14 @@ function ActivityScreen({
             {activity.title} · Question {idx + 1} of {activity.questions.length}
           </span>
           <span className="pill" style={{ fontSize: 20 }}>
-            {answered} / {activity.mode === "poll" ? total : 24}{" "}
-            {activity.mode === "poll" ? "students" : "teams"} answered
+            {answered} /{" "}
+            {activity.mode === "poll" || activity.scope === "individual"
+              ? total
+              : 24}{" "}
+            {activity.mode === "poll" || activity.scope === "individual"
+              ? "students"
+              : "teams"}{" "}
+            answered
           </span>
         </div>
         <h1>{q.q}</h1>
@@ -258,7 +264,9 @@ function ActivityScreen({
                 />
               </div>
               <span className="n">
-                {shown || activity.mode === "poll" ? counts[i] : ""}
+                {shown || activity.mode === "poll"
+                  ? counts[i]
+                  : ""}
               </span>
             </div>
           ))}

@@ -1,9 +1,9 @@
+import { workshopAction } from "../lib/workshopActions";
 import { activityTitle } from "../lib/presentation";
 import { useState } from "react";
 import { doc, serverTimestamp, setDoc, updateDoc } from "../lib/firestore";
 import { db } from "../firebase";
 import { useCollectionData, useDocData } from "../lib/hooks";
-import { applyCredits } from "../lib/credits";
 import { TEAMS } from "../content/teams";
 import paperless from "../content/paperless.json";
 import { SCORE_RUBRICS } from "../content/workshop";
@@ -61,12 +61,12 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
     }
   }
   async function apply(r: Review) {
-    await applyCredits(
+    await workshopAction({
       sid,
-      [{ teamId: r.teamId, delta: r.points }],
-      `${r.activity}: captain review`,
-      `review:${r.activity}:${r.teamId}`,
-    );
+      action: "applyReview",
+      teamId: r.teamId,
+      activity: r.activity,
+    });
   }
   async function freeze() {
     const { getDoc } = await import("../lib/firestore");
@@ -120,8 +120,8 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
         <div className="kicker">Review desk</div>
         <h2>From submission to credits.</h2>
         <p>
-          Captains review the evidence. You apply the award to the official
-          ledger.
+          Captains and facilitators can review evidence and apply awards to the
+          official ledger. Each reviewed award is applied once.
         </p>
       </div>
       {status && <p role="status">{status}</p>}
@@ -177,7 +177,7 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
           ))}
         </select>
       </label>
-      <ReviewTeam sid={sid} teamId={team} />
+      <ReviewTeam facilitator key={`${sid}:${team}`} sid={sid} teamId={team} />
       <button className="btn" onClick={() => run(freeze)}>
         Freeze approved architecture for Day2
       </button>
@@ -217,7 +217,11 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
       </div>
       <details className="card workshop-tool">
         <summary>Awards</summary>
-        <select aria-label="Award category" value={award} onChange={(e) => setAward(e.target.value)}>
+        <select
+          aria-label="Award category"
+          value={award}
+          onChange={(e) => setAward(e.target.value)}
+        >
           {[
             "Best Workshop Post or Photo",
             "Sherlock Award",
@@ -232,7 +236,11 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
             <option key={a}>{a}</option>
           ))}
         </select>
-        <select aria-label="Award recipient" value={winner} onChange={(e) => setWinner(e.target.value)}>
+        <select
+          aria-label="Award recipient"
+          value={winner}
+          onChange={(e) => setWinner(e.target.value)}
+        >
           <option value="">Choose recipient</option>
           {students.map((s) => (
             <option value={s.id} key={s.id}>
@@ -451,7 +459,8 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
         </p>
         <p className="small">
           Rubrics: {Object.keys(SCORE_RUBRICS).length} activities. Captains
-          propose points; only the facilitator applies credits.
+          apply reviewed credits or use a reasoned bonus/correction within their
+          region.
         </p>
       </div>
     </div>

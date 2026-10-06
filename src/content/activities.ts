@@ -35,8 +35,9 @@ interface Base {
 
 export interface QuizActivity extends Base {
   kind: "quiz";
-  /** Polls are not scored; quizzes award `points` per question, scaled by the share of team members who got it right. */
+  /** Polls are not scored; quizzes award `points` per question, Cloud or Not scores individuals; other quizzes use one team answer. */
   mode: "quiz" | "poll";
+  scope?: "individual" | "team";
   points: number;
   questions: { q: string; options: string[] }[];
 }
@@ -142,9 +143,11 @@ export const ACTIVITIES: Activity[] = [
     day: 1,
     slides: "Workshop activity",
     kind: "quiz",
-    mode: "poll",
-    points: 0,
-    intro: "Vote on each item as it appears on the screen.",
+    mode: "quiz",
+    scope: "individual",
+    points: 100,
+    intro:
+      "Answer individually. Each correct answer earns 100 credits for you and adds 100 to your team.",
     questions: [
       "Gmail",
       "Pen drive",

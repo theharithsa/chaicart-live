@@ -57,7 +57,7 @@ const transactions = new WeakMap<Span, string>();
 export async function observe<T>(name: string, work: (span: Span) => Promise<T>, attributes: Record<string, string> = {}, parent?: Span): Promise<T> {
   const actor = user;
   const generation = sequence;
-  const transaction = (parent && transactions.get(parent)) || crypto.randomUUID();
+  const transaction = (parent && transactions.get(parent)) || (/^[a-f0-9-]{36}$/i.test(attributes["transaction.id"] || "") ? attributes["transaction.id"] : crypto.randomUUID());
   const span = tracer.startSpan(name, { kind: SpanKind.CLIENT, attributes: { ...attributes, "transaction.id": transaction, "actor.uid": actor?.uid ?? "anonymous", "auth.generation": generation } }, parent ? trace.setSpan(ROOT_CONTEXT, parent) : ROOT_CONTEXT);
   transactions.set(span, transaction);
   try { return await work(span); }

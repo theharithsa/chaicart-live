@@ -39,3 +39,5 @@ export const telemetryIngest = onRequest({ region: 'asia-south1', secrets: [plat
   });
   await telemetry.flush();
 });
+
+export { workshopAction } from './workshop.js';

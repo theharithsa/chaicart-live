@@ -101,6 +101,15 @@ export async function undoLastBatch(sid: string) {
   const key =
     (entries.docs[0]?.data() as { key: string | null } | undefined)?.key ??
     null;
+  if (key?.startsWith("quiz:cloud-or-not:q")) {
+    const { workshopAction } = await import("./workshopActions");
+    await workshopAction({
+      sid,
+      action: "undoCloud",
+      question: Number(key.split("q").at(-1)),
+    });
+    return reason;
+  }
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(lbRef);
     const scores: Record<string, number> = { ...(snap.data()?.scores ?? {}) };
@@ -122,6 +131,10 @@ export async function undoLastBatch(sid: string) {
     });
     tx.set(lbRef, { scores, updatedAt: serverTimestamp() }, { merge: true });
     tx.set(reversal, { [batch]: true }, { merge: true });
+    if (key?.startsWith("review:")) {
+      const [, activity, teamId] = key.split(":");
+      tx.delete(doc(db, `sessions/${sid}/awards/${activity}__${teamId}`));
+    }
     if (key)
       tx.set(
         doc(db, `sessions/${sid}/private/applied`),

@@ -12,8 +12,15 @@ export default function QuizView({
   session,
   activity,
 }: StudentProps & { activity: QuizActivity }) {
+  const individual =
+    activity.mode === "poll" || activity.scope === "individual";
+  const result = useDocData<{ credits: number }>(
+    activity.id === "cloud-or-not"
+      ? `sessions/${sid}/quizResults/${uid}`
+      : null,
+  );
   const sub = useDocData<Submission>(
-    `sessions/${sid}/submissions/${submissionId(activity.id, activity.mode === "poll" ? uid : student.teamId)}`,
+    `sessions/${sid}/submissions/${submissionId(activity.id, individual ? uid : student.teamId)}`,
   );
   const reveal = useDocData<RevealDoc>(`sessions/${sid}/public/reveal`);
   const [sending, setSending] = useState(false);
@@ -34,7 +41,7 @@ export default function QuizView({
     reveal?.activity === activity.id &&
     reveal.index === idx;
   const canAnswer =
-    (activity.mode === "poll" || student.role === "COO") &&
+    (individual || student.role === "COO") &&
     session.state.phase === "open" &&
     mine === undefined &&
     !sending;
@@ -46,7 +53,7 @@ export default function QuizView({
       await submit(
         sid,
         activity.id,
-        activity.mode === "poll" ? "individual" : "team",
+        individual ? "individual" : "team",
         uid,
         student,
         { answers: { [String(idx)]: i } },
@@ -62,9 +69,13 @@ export default function QuizView({
     <div className="stack">
       {activity.mode === "quiz" && (
         <p className="small muted">
-          Discuss together. The COO submits one answer per team; +10 per correct
-          answer.
+          {individual
+            ? `Submit your own answer; +${activity.points} for each correct answer, added to your team.`
+            : `Discuss together. The COO submits one answer per team; +${activity.points} per correct answer.`}
         </p>
+      )}
+      {result && (
+        <p className="pill ok">Your Cloud or Not credits: {result.credits}</p>
       )}
       <div className="card stack">
         <span className="muted small">

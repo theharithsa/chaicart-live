@@ -27,3 +27,5 @@ dist-ssr
 node_modules.partial/
 .env.local
 *.log
+
+functions/.secret.local

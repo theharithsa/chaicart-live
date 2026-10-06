@@ -24,4 +24,4 @@ jobs:
       # Match the Firebase Node.js 22 cloud builder lockfile validation.
       - run: npx --yes npm@10 ci --prefix functions
       - run: npm test --prefix functions
-      - run: npx firebase-tools emulators:exec --project demo-chaicart --only firestore "node --test test/rules.test.mjs"
+      - run: npx firebase-tools emulators:exec --project demo-chaicart --only firestore "node --test --test-concurrency=1 test/rules.test.mjs test/workshop-actions.test.mjs"

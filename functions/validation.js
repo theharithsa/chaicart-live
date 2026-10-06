@@ -1,6 +1,6 @@
 const HEX32 = /^[a-f0-9]{32}$/;
 const HEX16 = /^[a-f0-9]{16}$/;
-const NAMES = /^(firestore\.(document\.(read|write|update|delete|add)|query\.read|transaction(\.read)?|batch\.commit|listener\.(initial|error|recovered))|browser\.error|auth\.google)$/;
+const NAMES = /^(firestore\.(document\.(read|write|update|delete|add)|query\.read|transaction(\.read)?|batch\.commit|listener\.(initial|error|recovered))|browser\.error|auth\.google|workshop\.(applyReview|manualAward|scoreCloud|undoCloud|deleteSession))$/;
 const ATTRIBUTES = new Set(['transaction.id', 'db.system.name', 'db.collection.name', 'workshop.session.id', 'workshop.team.id', 'workshop.activity.id', 'user.role', 'error.type']);
 
 export function validateEvents(body, now = Date.now()) {

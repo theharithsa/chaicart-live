@@ -74,9 +74,9 @@ export function createTelemetry(serviceName = 'chaicart-demo', options = {}) {
     const span = trace.getSpan(context.active());
     if (span) { span.chaicartAttributes = { ...(span.chaicartAttributes || {}), ...extra }; span.setAttributes(extra); }
   }
-  async function span(name, extra, work) {
+  async function span(name, extra, work, kind = SpanKind.INTERNAL) {
     const inherited = attributes(extra);
-    return tracer.startActiveSpan(name, { attributes: inherited }, async current => {
+    return tracer.startActiveSpan(name, { attributes: inherited, kind }, async current => {
       current.chaicartAttributes = inherited;
       try { return await work(current); }
       catch (error) { current.setStatus({ code: SpanStatusCode.ERROR, message: error.status ? 'Request rejected' : 'Operation failed' }); current.addEvent('exception', { 'exception.type': String(error.code || error.name || 'Error').slice(0, 100) }); throw error; }

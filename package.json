@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint src scripts test",
     "preview": "vite preview",
-    "test:rules": "npx --yes firebase-tools emulators:exec --project demo-chaicart --only firestore \"node --test test/rules.test.mjs\""
+    "test:rules": "npx --yes firebase-tools emulators:exec --project demo-chaicart --only firestore \"node --test --test-concurrency=1 test/rules.test.mjs test/workshop-actions.test.mjs\""
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",

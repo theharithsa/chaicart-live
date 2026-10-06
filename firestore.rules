@@ -29,7 +29,7 @@ service cloud.firestore {
    }
    match /students/{uid}{
     allow read:if facilitator() || (signedIn() && uid==request.auth.uid) || teamReader(resource.data.teamId);
-    allow create:if google() && uid==request.auth.uid
+    allow create:if google() && !session().get('deleting',false) && uid==request.auth.uid
       && request.resource.data.keys().hasOnly(['name','semester','branch','teamId','role','joinedAt'])
       && request.resource.data.name is string && request.resource.data.name.size()>1 && request.resource.data.name.size()<=60
       && request.resource.data.branch is string && request.resource.data.branch.size()>0 && request.resource.data.branch.size()<=60
@@ -39,6 +39,8 @@ service cloud.firestore {
     allow update:if facilitator() || (google() && uid==request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','branch']) && request.resource.data.name is string && request.resource.data.name.size()<=60 && request.resource.data.branch is string && request.resource.data.branch.size()<=60);
     allow delete:if facilitator();
    }
+   match /quizResults/{uid}{allow read:if facilitator() || (google() && uid==request.auth.uid) || captainTeam(get(/databases/$(database)/documents/sessions/$(sid)/students/$(uid)).data.teamId);allow write:if false;}
+   match /awards/{id}{allow read:if (resource!=null && teamReader(resource.data.teamId)) || (resource==null && teamReader(id.split('__')[1]));allow delete:if facilitator();}
    match /ledger/{id}{allow read:if teamReader(resource.data.teamId);allow create:if facilitator();allow update,delete:if false;}
    match /designs/{teamId}{allow read:if teamReader(teamId);allow create:if facilitator();allow update,delete:if false;}
    match /rolls/{id}{allow read:if teamReader(resource.data.teamId) || (google() && id.matches('^'+profile().teamId+'__.*'));allow create:if facilitator();allow update,delete:if false;}
@@ -97,7 +99,8 @@ service cloud.firestore {
        'bingo' == a ? (v.keys().hasOnly(['marks']) && v.marks is list && v.marks.size()<=24 && v.marks.hasOnly(get(/databases/$(database)/documents/sessions/$(sid)/public/workshop).data.bingoCalled)) :
        'gallery' == a ? (v.keys().hasOnly(["Netflix","Disney+ Hotstar","UPI / NPCI","IRCTC Tatkal","Capital One","Spotify"]) && v.get("Netflix",'') is string && v.get("Netflix",'').size()<=4000 && v.get("Disney+ Hotstar",'') is string && v.get("Disney+ Hotstar",'').size()<=4000 && v.get("UPI / NPCI",'') is string && v.get("UPI / NPCI",'').size()<=4000 && v.get("IRCTC Tatkal",'') is string && v.get("IRCTC Tatkal",'').size()<=4000 && v.get("Capital One",'') is string && v.get("Capital One",'').size()<=4000 && v.get("Spotify",'') is string && v.get("Spotify",'').size()<=4000) : false;}
     allow read:if facilitator() || (signedIn() && id.matches('.*__'+request.auth.uid+'$'))
-      || (google() && resource!=null && resource.data.get('scope','')=='team' && teamReader(resource.data.teamId))
+      || (google() && resource!=null && ((resource.data.activity=='cloud-or-not' && captainTeam(resource.data.teamId)) || (resource.data.get('scope','')=='team' && teamReader(resource.data.teamId))))
+      || (resource==null && id.matches('^cloud-or-not__.*') && captainTeam(get(/databases/$(database)/documents/sessions/$(sid)/students/$(id.split('__')[1])).data.teamId))
       || (google() && resource==null && (captainTeam(id.split('__')[1]) || id.matches('.*__'+profile().teamId+'$')));
     allow create,update:if google() && request.resource.data.uid==request.auth.uid && request.resource.data.teamId==profile().teamId
       && request.resource.data.scope==(individual(request.resource.data.activity)?'individual':'team') && request.resource.data.byName==profile().name && request.resource.data.updatedAt==request.time

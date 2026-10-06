@@ -68,6 +68,25 @@ export default function AnswerSummary({
     return <p className="muted">No answers to display yet.</p>;
   if (typeof values !== "object" || Array.isArray(values))
     return <AnswerValue value={values} />;
+  const quiz = ACTIVITY_BY_ID[activity];
+  if (quiz?.kind === "quiz")
+    return (
+      <dl className="answer-summary">
+        {Object.entries(values).map(([qi, answer]) => (
+          <div key={qi}>
+            <dt>
+              {quiz.questions[Number(qi)]?.q ?? `Question ${Number(qi) + 1}`}
+            </dt>
+            <dd>
+              {typeof answer === "number"
+                ? (quiz.questions[Number(qi)]?.options[answer] ??
+                  "Invalid answer")
+                : "No answer"}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    );
   return (
     <dl className="answer-summary">
       {Object.entries(values).map(([key, value]) => (

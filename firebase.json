@@ -49,6 +49,9 @@
     },
     "ui": {
       "enabled": false
+    },
+    "functions": {
+      "port": 5001
     }
   },
   "functions": [
@@ -59,7 +62,8 @@
         "node_modules",
         ".git",
         "test",
-        "*.log"
+        "*.log",
+        ".secret.local"
       ]
     }
   ]

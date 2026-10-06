@@ -1,18 +1,26 @@
+import { StudentWorkDetails } from "./StudentWork";
+import { workshopAction } from "../lib/workshopActions";
+import { ACTIVITIES } from "../content/activities";
 import { activityTitle } from "../lib/presentation";
 import { doc, updateDoc } from "../lib/firestore";
 import { db } from "../firebase";
 import { useState } from "react";
-import { useCollectionData } from "../lib/hooks";
+import { useCollectionData, useDocData } from "../lib/hooks";
 import { SCORE_RUBRICS } from "../content/workshop";
 import type { Student } from "../types";
 import { ReviewEditor } from "../pages/Captain";
 export default function ReviewTeam({
   sid,
   teamId,
+  facilitator = false,
 }: {
   sid: string;
   teamId: string;
+  facilitator?: boolean;
 }) {
+  const board = useDocData<{ scores: Record<string, number> }>(
+    `sessions/${sid}/public/leaderboard`,
+  );
   const roster =
     useCollectionData<Student>(`sessions/${sid}/students`, "teamId", teamId) ??
     [];
@@ -23,9 +31,18 @@ export default function ReviewTeam({
       teamId,
     ) ?? [];
   const [activity, setActivity] = useState("network-linkedin");
+  const [awardActivity, setAwardActivity] = useState("shark-pitch");
+  const [delta, setDelta] = useState("100");
+  const [reason, setReason] = useState("");
+  const [operationId, setOperationId] = useState(() => crypto.randomUUID());
+  const [awardStatus, setAwardStatus] = useState("");
+  const [busy, setBusy] = useState(false);
   return (
     <div className="stack">
       <div className="card">
+        <h3>
+          Team credits: {(board?.scores?.[teamId] ?? 1000).toLocaleString()}
+        </h3>
         <h3>Team readiness · {roster.length}/5 joined</h3>
         {!roster.length && (
           <p className="muted">
@@ -34,9 +51,14 @@ export default function ReviewTeam({
           </p>
         )}
         {roster.map((s) => (
-          <p key={s.id}>
-            {s.name} · {s.role} · Semester {s.semester}
-          </p>
+          <StudentWorkDetails
+            facilitator={facilitator}
+            key={s.id}
+            sid={sid}
+            uid={s.id}
+            teamId={s.teamId}
+            label={`${s.name} · ${s.role} · Semester ${s.semester}`}
+          />
         ))}
       </div>
       <label className="field">
@@ -55,6 +77,89 @@ export default function ReviewTeam({
         teamId={teamId}
         activity={activity}
       />
+      <form
+        className="card stack"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (busy) return;
+          setBusy(true);
+          try {
+            const result = await workshopAction({
+              sid,
+              action: "manualAward",
+              teamId,
+              activity: awardActivity,
+              delta: Number(delta),
+              reason,
+              operationId,
+            });
+            setAwardStatus(result.message ?? "Credits applied.");
+            setOperationId(crypto.randomUUID());
+            setReason("");
+          } catch (e) {
+            setAwardStatus((e as Error).message);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <h3>Award or correct credits for any activity</h3>
+        <p className="small">
+          Use the reviewed award above for normal rubric scoring. Use this for
+          judged bonuses or corrections, with a specific reason. Captains can
+          adjust only their region’s teams. Do not repeat an automatic quiz
+          award.
+        </p>
+        <label className="field">
+          Activity
+          <select
+            value={awardActivity}
+            onChange={(e) => {
+              setAwardActivity(e.target.value);
+              setOperationId(crypto.randomUUID());
+            }}
+          >
+            {ACTIVITIES.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          Credits (+ award / − correction)
+          <input
+            type="number"
+            required
+            min="-10000"
+            max="10000"
+            value={delta}
+            onChange={(e) => {
+              setDelta(e.target.value);
+              setOperationId(crypto.randomUUID());
+            }}
+          />
+        </label>
+        <label className="field">
+          Reason
+          <input
+            required
+            maxLength={500}
+            value={reason}
+            onChange={(e) => {
+              setReason(e.target.value);
+              setOperationId(crypto.randomUUID());
+            }}
+          />
+        </label>
+        <button
+          className="btn"
+          disabled={busy || !reason.trim() || !Number(delta)}
+        >
+          {busy ? "Applying…" : "Apply credits to this team"}
+        </button>
+        {awardStatus && <p role="status">{awardStatus}</p>}
+      </form>
       <div className="card">
         <h3>X award entries</h3>
         {!entries.length && (

@@ -1,3 +1,4 @@
+import { workshopAction } from "../../lib/workshopActions";
 import { useState } from "react";
 import { doc, setDoc } from "../../lib/firestore";
 import { db } from "../../firebase";
@@ -37,10 +38,12 @@ export default function QuizPanel({
           ).length,
       )
     : [];
-  const expected =
-    activity.mode === "poll"
-      ? students.length
-      : new Set(students.map((s) => s.teamId)).size;
+  const individual =
+    activity.mode === "poll" || activity.scope === "individual";
+  const [busy, setBusy] = useState(false);
+  const expected = individual
+    ? students.length
+    : new Set(students.map((s) => s.teamId)).size;
   const answered = counts.reduce((a, b) => a + b, 0);
   const max = Math.max(1, ...counts);
   const revealed = isLive && session.state.phase === "revealed";
@@ -70,29 +73,50 @@ export default function QuizPanel({
   }
 
   async function reveal() {
-    await patchSession(sid, { "state.phase": "locked" });
-    await setDoc(doc(db, `sessions/${sid}/public/reveal`), {
-      activity: activity.id,
-      index: idx,
-      correct: key?.answer ?? null,
-      explanation: key?.why ?? "",
-    });
-    await patchSession(sid, { "state.phase": "revealed" });
-    // Each question is credited once; Undo in the Leaderboard tab clears the marker so it can be re-scored.
-    if (activity.mode === "quiz" && key && !ctx.applied[qKey(idx)]) {
-      const changes = questionCredits(idx);
-      const total = changes.reduce((s, c) => s + c.delta, 0);
-      const n = await applyCredits(
-        sid,
-        changes,
-        `${activity.title} · Q${idx + 1}`,
-        qKey(idx),
-      );
-      setMsg(
-        n
-          ? `Q${idx + 1}: ${total} credits added across ${n} teams.`
-          : `Q${idx + 1}: no team scored.`,
-      );
+    setBusy(true);
+    setMsg("");
+    try {
+      await patchSession(sid, { "state.phase": "locked" });
+      if (activity.id === "cloud-or-not") {
+        const result = await workshopAction({
+          sid,
+          action: "scoreCloud",
+          question: idx,
+        });
+        setMsg(result.message ?? "Scored.");
+      }
+      await setDoc(doc(db, `sessions/${sid}/public/reveal`), {
+        activity: activity.id,
+        index: idx,
+        correct: key?.answer ?? null,
+        explanation: key?.why ?? "",
+      });
+      await patchSession(sid, { "state.phase": "revealed" });
+      // Each question is credited once; Undo in the Leaderboard tab clears the marker so it can be re-scored.
+      if (
+        activity.mode === "quiz" &&
+        activity.id !== "cloud-or-not" &&
+        key &&
+        !ctx.applied[qKey(idx)]
+      ) {
+        const changes = questionCredits(idx);
+        const total = changes.reduce((s, c) => s + c.delta, 0);
+        const n = await applyCredits(
+          sid,
+          changes,
+          `${activity.title} · Q${idx + 1}`,
+          qKey(idx),
+        );
+        setMsg(
+          n
+            ? `Q${idx + 1}: ${total} credits added across ${n} teams.`
+            : `Q${idx + 1}: no team scored.`,
+        );
+      }
+    } catch (e) {
+      setMsg((e as Error).message);
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -110,8 +134,8 @@ export default function QuizPanel({
               Question {idx + 1} of {activity.questions.length}
             </span>
             <span className="pill">
-              {answered} / {expected}{" "}
-              {activity.mode === "poll" ? "students" : "teams"} answered
+              {answered} / {expected} {individual ? "students" : "teams"}{" "}
+              answered
             </span>
           </div>
           <h3 style={{ fontSize: 22 }}>{q.q}</h3>
@@ -140,25 +164,30 @@ export default function QuizPanel({
             <div className="row">
               <button
                 className="btn ghost"
-                disabled={idx === 0}
+                disabled={idx === 0 || busy}
                 onClick={() => go(idx - 1)}
               >
                 Previous
               </button>
               <button
                 className="btn ghost"
+                disabled={busy}
                 onClick={() => patchSession(sid, { "state.phase": "locked" })}
               >
                 Lock answers
               </button>
-              <button className="btn clay" disabled={!keys} onClick={reveal}>
+              <button
+                className="btn clay"
+                disabled={!keys || busy}
+                onClick={reveal}
+              >
                 {activity.mode === "quiz"
                   ? "Reveal and score"
                   : "Reveal answer"}
               </button>
               <button
                 className="btn"
-                disabled={idx >= activity.questions.length - 1}
+                disabled={busy || idx >= activity.questions.length - 1}
                 onClick={() => go(idx + 1)}
               >
                 Next question
@@ -182,12 +211,37 @@ export default function QuizPanel({
           </div>
           <p className="small">
             Credits are added the moment you press <b>Reveal and score</b>:{" "}
-            {activity.points} per question per team, for the team answer
-            submitted by its COO. Each question is scored only once. To
-            re-score, use <b>Undo last change</b> in the Leaderboard tab, then
-            reveal again.
+            {activity.points}{" "}
+            {individual
+              ? "per correct participant; individual scores are added to the team total."
+              : "per question per team, for the team answer submitted by its COO."}{" "}
+            Each question is scored only once. To re-score, use{" "}
+            <b>Undo last change</b> in the Leaderboard tab, then reveal again.
           </p>
-          {msg && <span className="pill ok">{msg}</span>}
+          {activity.id === "cloud-or-not" && ctx.applied[qKey(idx)] && (
+            <button
+              className="btn ghost"
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  const result = await workshopAction({
+                    sid,
+                    action: "undoCloud",
+                    question: idx,
+                  });
+                  setMsg(result.message ?? "Question reset.");
+                } catch (e) {
+                  setMsg((e as Error).message);
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              Undo this question’s student and team credits
+            </button>
+          )}
+          {msg && <span role="status">{msg}</span>}
         </div>
       )}
     </div>

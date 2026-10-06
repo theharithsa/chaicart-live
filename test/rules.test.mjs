@@ -175,7 +175,7 @@ test("private survey and answer keys are not readable by teammate", async () => 
     getDoc(doc(db("cto"), path("submissions/survey-pre__cto"))),
   );
 });
-test("captain scoped to region and cannot launch or award credits", async () => {
+test("captain scoped to region and cannot bypass the scoring backend", async () => {
   const d = db("captain", "captain@example.com");
   await assertSucceeds(
     getDocs(
@@ -301,7 +301,7 @@ test("concurrent award invokes actual scoring transaction once, correction is ap
         ? { db: d, auth: { currentUser: { uid: "fac" } } }
         : name === "../content/teams"
           ? teams
-          : (name === "firebase/firestore" || name === "./firestore")
+          : name === "firebase/firestore" || name === "./firestore"
             ? firestore
             : require(name),
     crypto,
@@ -447,7 +447,10 @@ test("all paperless forms and studio submissions pass their schemas", async () =
           path(`submissions/${a.id}__${individual ? "coo" : "mumbai-1a"}`),
         ),
         { ...sub(a.id, values), scope: a.scope },
-      ),
+      ).catch((e) => {
+        e.message = `Schema ${a.id}: ${e.message}`;
+        throw e;
+      }),
     );
   }
   for (const [activity, values] of [
@@ -664,7 +667,7 @@ test("120 Google students join 24 teams with atomic five-role reservations", asy
         )(exports, (name) =>
           name === "../firebase"
             ? { db: d }
-            : (name === "firebase/firestore" || name === "./firestore")
+            : name === "firebase/firestore" || name === "./firestore"
               ? firestore
               : require(name),
         );
@@ -719,5 +722,68 @@ test("captain can open a new review before it exists only for their region", asy
   );
   await assertFails(
     getDoc(doc(db("other"), path("reviews/network-linkedin__mumbai-1a"))),
+  );
+});
+
+test("captain can read individual Cloud answers only within assigned region", async () => {
+  await env.withSecurityRulesDisabled(async (ctx) => {
+    await setDoc(doc(ctx.firestore(), path("submissions/cloud-or-not__coo")), {
+      activity: "cloud-or-not",
+      scope: "individual",
+      uid: "coo",
+      teamId: "mumbai-1a",
+      answers: { 0: 0 },
+    });
+    await setDoc(
+      doc(ctx.firestore(), path("submissions/cloud-or-not__other")),
+      {
+        activity: "cloud-or-not",
+        scope: "individual",
+        uid: "other",
+        teamId: "delhi-1a",
+        answers: { 0: 0 },
+      },
+    );
+    await setDoc(doc(ctx.firestore(), path("quizResults/coo")), {
+      teamId: "mumbai-1a",
+      credits: 100,
+    });
+  });
+  const captain = db("captain", "captain@example.com");
+  await assertSucceeds(
+    getDoc(doc(captain, path("submissions/cloud-or-not__coo"))),
+  );
+  await assertFails(getDoc(doc(captain, path("submissions/survey-pre__coo"))));
+  await assertFails(
+    getDoc(doc(captain, path("submissions/cloud-or-not__other"))),
+  );
+  await assertSucceeds(getDoc(doc(captain, path("quizResults/coo"))));
+  await assertFails(
+    setDoc(doc(db(), path("quizResults/coo")), {
+      credits: 99999,
+      teamId: "mumbai-1a",
+    }),
+  );
+  await assertFails(
+    setDoc(doc(captain, path("awards/architecture__mumbai-1a")), {
+      points: 50,
+      teamId: "mumbai-1a",
+    }),
+  );
+});
+
+test("incorrect timeline review can be approved at zero credits", async () => {
+  const captain = db("captain", "captain@example.com");
+  await assertSucceeds(
+    setDoc(doc(captain, path("reviews/timeline__mumbai-1b")), {
+      activity: "timeline",
+      teamId: "mumbai-1b",
+      region: "west",
+      points: 0,
+      comment: "Review complete; order needs correction",
+      status: "approved",
+      actor: "captain",
+      updatedAt: serverTimestamp(),
+    }),
   );
 });

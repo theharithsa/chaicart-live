@@ -1,3 +1,4 @@
+import { workshopAction } from "../lib/workshopActions";
 import { signOut } from "firebase/auth";
 import AnswerSummary from "../components/AnswerSummary";
 import { activityTitle } from "../lib/presentation";
@@ -87,9 +88,9 @@ export default function Captain() {
           <h3>{REGIONS.find((r) => r.id === staff.region)?.name}</h3>
           <div className="card">
             <p>
-              Check team work, validate completion and propose credits for your
-              six teams. The facilitator applies reviewed awards. You cannot
-              change global activities or another region.
+              Check team work, validate completion and award credits for your
+              six teams. Facilitators can also apply awards. You cannot change
+              global activities or another region.
             </p>
           </div>
           <div className="card stack">
@@ -151,7 +152,13 @@ export default function Captain() {
               </button>
             ))}
           </div>
-          {selected && <ReviewTeam sid={sid} teamId={selected} />}
+          {selected && (
+            <ReviewTeam
+              key={`${sid}:${selected}`}
+              sid={sid}
+              teamId={selected}
+            />
+          )}
         </>
       )}
       <Link to="/">Home</Link>
@@ -185,7 +192,13 @@ export function ReviewEditor({
   const saved = useDocData<{ points: number; comment: string; status: string }>(
     `sessions/${sid}/reviews/${activity}__${teamId}`,
   );
-  const [points, setPoints] = useState("");
+  const awarded = useDocData<{ points: number }>(
+    `sessions/${sid}/awards/${activity}__${teamId}`,
+  );
+  const [busy, setBusy] = useState(false);
+  const [points, setPoints] = useState(
+    String(SCORE_RUBRICS[activity]?.max ?? 0),
+  );
   const [comment, setComment] = useState("");
   const [status, setStatus] = useState("");
   const keys = useDocData<{
@@ -216,8 +229,6 @@ export function ReviewEditor({
       : undefined;
   async function review() {
     try {
-      if (activity === "timeline" && !correct)
-        throw new Error("Timeline order is not correct.");
       if (
         activity === "bingo" &&
         !validBingo(
@@ -227,7 +238,12 @@ export function ReviewEditor({
         )
       )
         throw new Error("No valid called Bingo line.");
-      const p = network ? 100 : (serviceScore ?? Number(points));
+      const p =
+        activity === "timeline" && !correct
+          ? 0
+          : network
+            ? 100
+            : (serviceScore ?? Number(points));
       if (!Number.isFinite(p) || p < 0 || p > rubric.max)
         throw new Error("Points outside this rubric.");
       if (network && !complete)
@@ -242,14 +258,14 @@ export function ReviewEditor({
         actor: auth.currentUser?.uid,
         updatedAt: serverTimestamp(),
       });
-      setStatus("Review saved; facilitator applies credits.");
+      setStatus("Review saved. A captain or facilitator can apply the award.");
     } catch (e) {
       setStatus((e as Error).message);
     }
   }
   return (
     <div className="card stack">
-      <div className="kicker">Review → Propose → Facilitator applies</div>
+      <div className="kicker">Review → Approve → Award once</div>
       <h3>{activityTitle(activity)}</h3>
       <p>{rubric.help}</p>
       {network ? (
@@ -287,14 +303,24 @@ export function ReviewEditor({
           )}
         </>
       )}
+      {correct === false && (
+        <p className="small">
+          Incorrect work can be approved with feedback at zero credits. The
+          correct-order winner award remains +50.
+        </p>
+      )}
       <label className="field">
         Credits proposed
         <input
           type="number"
           min="0"
           max={rubric.max}
-          value={network ? "100" : (serviceScore ?? points)}
-          disabled={!!network || serviceScore !== undefined}
+          value={
+            correct === false ? "0" : network ? "100" : (serviceScore ?? points)
+          }
+          disabled={
+            !!network || serviceScore !== undefined || correct === false
+          }
           onChange={(e) => setPoints(e.target.value)}
         />
       </label>
@@ -308,16 +334,45 @@ export function ReviewEditor({
       </label>
       <button
         className="btn"
-        disabled={!!network && !complete}
+        disabled={
+          (!!network && !complete) ||
+          ((activity === "timeline" || activity === "service-sort") && !keys)
+        }
         onClick={review}
       >
         Approve for facilitator
       </button>
+      <button
+        className="btn clay"
+        disabled={busy || !saved || saved.points <= 0 || !!awarded}
+        onClick={async () => {
+          setBusy(true);
+          try {
+            const result = await workshopAction({
+              sid,
+              action: "applyReview",
+              teamId,
+              activity,
+            });
+            setStatus(result.message ?? "Award applied.");
+          } catch (e) {
+            setStatus((e as Error).message);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        {awarded
+          ? `Awarded ${awarded.points} credits`
+          : busy
+            ? "Applying…"
+            : "Award reviewed credits to team"}
+      </button>
       {saved && (
         <p>
           Previous review: {saved.points} credits proposed ·{" "}
-          {saved.status === "approved" ? "Ready for facilitator" : saved.status}{" "}
-          · {saved.comment}
+          {saved.status === "approved" ? "Approved" : saved.status} ·{" "}
+          {saved.comment}
         </p>
       )}
       {status && <p role="status">{status}</p>}

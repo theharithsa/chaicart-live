@@ -137,7 +137,8 @@ export default function Play() {
               <span className="pill">
                 {(activity.kind === "form" &&
                   activity.scope === "individual") ||
-                (activity.kind === "quiz" && activity.mode === "poll")
+                (activity.kind === "quiz" &&
+                  (activity.mode === "poll" || activity.scope === "individual"))
                   ? "Individual response"
                   : "Team activity"}
               </span>
@@ -150,7 +151,8 @@ export default function Play() {
                 · Your role: {student.role}.{" "}
                 {(activity.kind === "form" &&
                   activity.scope === "individual") ||
-                (activity.kind === "quiz" && activity.mode === "poll")
+                (activity.kind === "quiz" &&
+                  (activity.mode === "poll" || activity.scope === "individual"))
                   ? "Submit your own response."
                   : activity.id === "factory"
                     ? "Follow the round instructions below. Assigned roles process each delivery stage."

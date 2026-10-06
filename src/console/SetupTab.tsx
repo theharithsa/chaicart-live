@@ -1,11 +1,11 @@
+import { workshopAction } from "../lib/workshopActions";
 import { useState } from "react";
 import {
   doc,
-  getDoc,
+  runTransaction,
   serverTimestamp,
   setDoc,
   updateDoc,
-  writeBatch,
 } from "../lib/firestore";
 import { db } from "../firebase";
 import { TEAMS, REGIONS } from "../content/teams";
@@ -33,56 +33,83 @@ export default function SetupTab({
   const [region, setRegion] = useState("west");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [msg, setMsg] = useState("");
+  const [deleteId, setDeleteId] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  async function removeSession(e: React.FormEvent) {
+    e.preventDefault();
+    setDeleting(true);
+    try {
+      await workshopAction({ sid: deleteId, action: "deleteSession", confirm });
+      if (sid === deleteId) setSid("");
+      setMsg(`Session ${deleteId} and its records deleted.`);
+      setDeleteId("");
+      setConfirm("");
+    } catch (e) {
+      setMsg(
+        `Deletion failed: ${(e as Error).message}. You can retry this session.`,
+      );
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
+    if (creating) return;
+    setCreating(true);
     const id = normaliseCode(code);
-    if (id.length < 4) {
-      setMsg("Use at least 4 letters or digits.");
+    if (id.length < 4 || id.length > 16) {
+      setMsg("Use 4–16 letters or digits.");
       return;
     }
-    if ((await getDoc(doc(db, `sessions/${id}`))).exists()) {
-      setMsg(`Session ${id} already exists. Select it below.`);
-      return;
-    }
-    await setDoc(doc(db, `sessions/${id}`), {
-      schemaVersion: 2,
-      workshopDate: date,
-      certificatesIssued: false,
-      networkingOpen: true,
-      title: title.trim() || "ChaiCart Workshop",
-      currentActivity: null,
-      screen: "join",
-      timer: null,
-      state: { phase: "open", index: 0, indexedField: null },
-      createdAt: serverTimestamp(),
-    });
-    await setDoc(doc(db, `sessions/${id}/public/leaderboard`), {
-      scores: initialScores(),
-      updatedAt: serverTimestamp(),
-    });
-    const batch = writeBatch(db);
-    TEAMS.forEach((t) =>
-      batch.set(doc(db, `sessions/${id}/teams/${t.id}`), {
-        teamId: t.id,
-        region: t.region,
-        joinCode: `${t.name.toUpperCase()}-${crypto.randomUUID().slice(0, 4).toUpperCase()}`,
-        slots: {},
-      }),
-    );
-    batch.set(doc(db, `sessions/${id}/public/workshop`), {
-      bingoCalled: [],
-      awards: [],
-    });
-    for (const name of ["keys", "activityKeys"]) {
-      const content = await getDoc(doc(db, `workshopContent/${name}`));
-      if (!content.exists())
+    await runTransaction(db, async (tx) => {
+      const parent = doc(db, `sessions/${id}`);
+      const existing = await tx.get(parent);
+      if (existing.exists())
+        throw new Error(`Session ${id} already exists. Select it below.`);
+      const content = await Promise.all(
+        ["keys", "activityKeys"].map((name) =>
+          tx.get(doc(db, `workshopContent/${name}`)),
+        ),
+      );
+      if (content.some((s) => !s.exists()))
         throw new Error(
           "Workshop content not seeded. Run the documented seed script first.",
         );
-      batch.set(doc(db, `sessions/${id}/private/${name}`), content.data());
-    }
-    await batch.commit();
+      tx.set(parent, {
+        schemaVersion: 2,
+        workshopDate: date,
+        certificatesIssued: false,
+        networkingOpen: true,
+        title: title.trim() || "ChaiCart Workshop",
+        currentActivity: null,
+        screen: "join",
+        timer: null,
+        state: { phase: "open", index: 0, indexedField: null },
+        createdAt: serverTimestamp(),
+      });
+      tx.set(doc(db, `sessions/${id}/public/leaderboard`), {
+        scores: initialScores(),
+        updatedAt: serverTimestamp(),
+      });
+      TEAMS.forEach((t) =>
+        tx.set(doc(db, `sessions/${id}/teams/${t.id}`), {
+          teamId: t.id,
+          region: t.region,
+          joinCode: `${t.name.toUpperCase()}-${crypto.randomUUID().slice(0, 4).toUpperCase()}`,
+          slots: {},
+        }),
+      );
+      tx.set(doc(db, `sessions/${id}/public/workshop`), {
+        bingoCalled: [],
+        awards: [],
+      });
+      ["keys", "activityKeys"].forEach((name, i) =>
+        tx.set(doc(db, `sessions/${id}/private/${name}`), content[i].data()!),
+      );
+    });
     setSid(id);
     setCode("");
     setMsg(`Session ${id} created.`);
@@ -125,16 +152,65 @@ export default function SetupTab({
               <span>
                 <b>{s.id}</b> <span className="muted small">{s.title}</span>
               </span>
-              {s.id === sid ? (
-                <span className="pill ok">Selected</span>
-              ) : (
-                <button className="btn sm ghost" onClick={() => setSid(s.id)}>
-                  Select
+              <div className="row">
+                {s.id === sid ? (
+                  <span className="pill ok">Selected</span>
+                ) : (
+                  <button className="btn sm ghost" onClick={() => setSid(s.id)}>
+                    Select
+                  </button>
+                )}
+                <button
+                  className="btn sm danger"
+                  disabled={deleting}
+                  onClick={() => {
+                    setDeleteId(s.id);
+                    setConfirm("");
+                  }}
+                >
+                  Delete
                 </button>
-              )}
+              </div>
             </div>
           ))}
         </div>
+        {deleteId && (
+          <form className="card stack" onSubmit={removeSession}>
+            <h3>Delete session {deleteId}?</h3>
+            <p>
+              This permanently removes its students, answers, reviews, credits,
+              station events and other workshop records. Choose a rehearsal
+              session for testing.
+            </p>
+            <label className="field">
+              Type {deleteId} to confirm
+              <input
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                disabled={deleting}
+              />
+            </label>
+            <div className="row">
+              <button
+                className="btn danger"
+                disabled={deleting || confirm !== deleteId}
+              >
+                {deleting
+                  ? "Deleting all records…"
+                  : "Permanently delete session"}
+              </button>
+              <button
+                type="button"
+                className="btn ghost"
+                disabled={deleting}
+                onClick={() => setDeleteId("")}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+        {msg && <p role="status">{msg}</p>}
       </div>
       <div className="stack">
         {sid && (
@@ -206,7 +282,14 @@ export default function SetupTab({
             <a href={`#/captain?s=${sid}`}>Captain dashboard link</a>
           </form>
         )}
-        <form className="card stack" onSubmit={create}>
+        <form
+          className="card stack"
+          onSubmit={(e) => {
+            create(e)
+              .catch((error) => setMsg((error as Error).message))
+              .finally(() => setCreating(false));
+          }}
+        >
           <h3>Create a session</h3>
           <p className="small muted">
             One session per workshop. It holds students, teams, submissions and
@@ -237,7 +320,9 @@ export default function SetupTab({
               maxLength={120}
             />
           </label>
-          <button className="btn">Create session</button>
+          <button className="btn" disabled={creating}>
+            {creating ? "Creating…" : "Create session"}
+          </button>
           {msg && <span className="small">{msg}</span>}
         </form>
         <div className="card stack small">

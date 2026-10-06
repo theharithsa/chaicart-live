@@ -349,8 +349,7 @@ export const ACTIVITIES: Activity[] = [
     kind: "form",
     scope: "team",
     intro:
-      "Mark your answers as the facilitator reads them out, then submit your total.",
-    creditsField: "total",
+      "Submit your answers and evidence on your phone. Your captain reviews the work and awards up to 150 credits.",
     fields: [
       ...paperless.questions.flatMap((q) => [
         {

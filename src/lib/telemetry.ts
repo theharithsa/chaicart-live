@@ -47,10 +47,12 @@ export function setTelemetryUser(next: User | null) {
 export function operationAttributes(path?: string): Record<string, string> {
   const parts = (path ?? "").split("/");
   const activity = parts[2] === "submissions" || parts[2] === "reviews" ? parts[3]?.split("__")[0] : undefined;
+  const candidateTeam = parts[2] === "teams" ? parts[3] : ["submissions", "reviews", "architectures"].includes(parts[2]) ? parts[3]?.split("__")[1] : undefined;
+  const team = /^(mumbai|chennai|pune|delhi)-1[a-f]$/.test(candidateTeam ?? "") ? candidateTeam : undefined;
   const querySession = new URLSearchParams(location.hash.split("?")[1] ?? "").get("s");
   const session = parts[0] === "sessions" ? parts[1] : querySession ?? localStorage.getItem("chaicart-session");
   // Only bounded collection names; never raw document paths, join codes or form content.
-  return { "db.system.name": "firestore", "db.collection.name": parts[0] === "sessions" ? parts[2] ?? "sessions" : parts[0] ?? "unknown", ...(session ? { "workshop.session.id": session.slice(0, 40) } : {}), ...(activity ? { "workshop.activity.id": activity.slice(0, 80) } : {}), "telemetry.source": "client-observed" };
+  return { "db.system.name": "firestore", "db.collection.name": parts[0] === "sessions" ? parts[2] ?? "sessions" : parts[0] ?? "unknown", ...(session ? { "workshop.session.id": session.slice(0, 40) } : {}), ...(activity ? { "workshop.activity.id": activity.slice(0, 80) } : {}), ...(team ? { "workshop.team.id": team } : {}), "telemetry.source": "client-observed" };
 }
 
 const transactions = new WeakMap<Span, string>();
@@ -58,7 +60,7 @@ export async function observe<T>(name: string, work: (span: Span) => Promise<T>,
   const actor = user;
   const generation = sequence;
   const transaction = (parent && transactions.get(parent)) || (/^[a-f0-9-]{36}$/i.test(attributes["transaction.id"] || "") ? attributes["transaction.id"] : crypto.randomUUID());
-  const span = tracer.startSpan(name, { kind: SpanKind.CLIENT, attributes: { ...attributes, "transaction.id": transaction, "actor.uid": actor?.uid ?? "anonymous", "auth.generation": generation } }, parent ? trace.setSpan(ROOT_CONTEXT, parent) : ROOT_CONTEXT);
+  const span = tracer.startSpan(name, { kind: SpanKind.CLIENT, attributes: { ...attributes, ...(name.startsWith("firestore.") ? { "db.operation.name": name.slice(10) } : {}), ...(actor ? { "user.id": actor.uid, "user.email": actor.email ?? "" } : {}), "transaction.id": transaction, "actor.uid": actor?.uid ?? "anonymous", "auth.generation": generation } }, parent ? trace.setSpan(ROOT_CONTEXT, parent) : ROOT_CONTEXT);
   transactions.set(span, transaction);
   try { return await work(span); }
   catch (error) {

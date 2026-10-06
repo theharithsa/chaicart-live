@@ -37,6 +37,8 @@ export async function workshopAction(data: Record<string, unknown>) {
       ).data,
     {
       "workshop.session.id": String(data.sid),
+      ...(typeof data.teamId === "string" ? { "workshop.team.id": data.teamId } : {}),
+      ...(typeof data.activity === "string" ? { "workshop.activity.id": data.activity } : {}),
       "transaction.id": transactionId,
     },
   );

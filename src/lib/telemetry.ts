@@ -1,3 +1,4 @@
+import { beginRumAction } from "./rum-actions.js";
 import { identifyRumUser } from "./rum-identity";
 import { ROOT_CONTEXT, trace, SpanKind, SpanStatusCode, type Span } from "@opentelemetry/api";
 import { WebTracerProvider, BatchSpanProcessor, type ReadableSpan, type SpanExporter } from "@opentelemetry/sdk-trace-web";
@@ -57,6 +58,9 @@ export function operationAttributes(path?: string): Record<string, string> {
 
 const transactions = new WeakMap<Span, string>();
 export async function observe<T>(name: string, work: (span: Span) => Promise<T>, attributes: Record<string, string> = {}, parent?: Span): Promise<T> {
+  const actionNames: Record<string,string> = { "auth.google":"User Login", "firestore.document.write":"Save Workshop Work", "firestore.document.update":"Update Workshop Work", "firestore.document.add":"Submit Workshop Work", "firestore.transaction":"Save Workshop Transaction", "workshop.applyReview":"Award Reviewed Credits", "workshop.manualAward":"Adjust Team Credits", "workshop.scoreCloud":"Score Cloud Answers", "workshop.undoCloud":"Undo Cloud Score", "workshop.deleteSession":"Delete Workshop Session" };
+  const rumAction = beginRumAction(actionNames[name]);
+  let outcome = "success";
   const actor = user;
   const generation = sequence;
   const transaction = (parent && transactions.get(parent)) || (/^[a-f0-9-]{36}$/i.test(attributes["transaction.id"] || "") ? attributes["transaction.id"] : crypto.randomUUID());
@@ -64,6 +68,7 @@ export async function observe<T>(name: string, work: (span: Span) => Promise<T>,
   transactions.set(span, transaction);
   try { return await work(span); }
   catch (error) {
+    outcome = "failure";
     const code = typeof error === "object" && error && "code" in error ? String(error.code).slice(0, 100) : "operation-failed";
     try { window.dtrum?.reportError?.(name + ": " + code); } catch { /* Optional RUM cannot break the operation. */ }
     span.setAttribute("error.type", code);
@@ -73,6 +78,7 @@ export async function observe<T>(name: string, work: (span: Span) => Promise<T>,
     // A span belongs to the account that initiated it, even if auth changes while pending.
     if (user?.uid !== actor?.uid || sequence !== generation) span.setAttribute("telemetry.discard", true);
     span.end();
+    rumAction.end(outcome);
   }
 }
 

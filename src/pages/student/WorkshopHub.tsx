@@ -1,3 +1,4 @@
+import { withRumAction } from "../../lib/rum-actions.js";
 import AnswerSummary from "../../components/AnswerSummary";
 import { activityTitle } from "../../lib/presentation";
 import { useState } from "react";
@@ -377,7 +378,7 @@ export default function WorkshopHub({
         </>
       )}
       {status && <p role="status">{status}</p>}
-      <button className="btn ghost sm" onClick={() => signOut(auth)}>
+      <button className="btn ghost sm" onClick={() => withRumAction("User Logout", () => signOut(auth))}>
         Sign out
       </button>
     </div>

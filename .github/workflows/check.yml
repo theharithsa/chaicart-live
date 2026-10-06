@@ -21,6 +21,7 @@ jobs:
           VITE_FIREBASE_PROJECT_ID: demo-chaicart
           VITE_FIREBASE_APP_ID: demo-app
       - run: npm run lint
+      - run: node --test test/rum.test.mjs
       # Match the Firebase Node.js 22 cloud builder lockfile validation.
       - run: npx --yes npm@10 ci --prefix functions
       - run: npm test --prefix functions

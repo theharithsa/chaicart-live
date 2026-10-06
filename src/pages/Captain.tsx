@@ -1,3 +1,4 @@
+import { withRumAction } from "../lib/rum-actions.js";
 import { workshopAction } from "../lib/workshopActions";
 import { signOut } from "firebase/auth";
 import AnswerSummary from "../components/AnswerSummary";
@@ -66,7 +67,7 @@ export default function Captain() {
           <div className="kicker">Regional review desk</div>
           <h1>Captain dashboard</h1>
         </div>
-        <button className="btn ghost" onClick={() => signOut(auth)}>
+        <button className="btn ghost" onClick={() => withRumAction("User Logout", () => signOut(auth))}>
           Switch account
         </button>
       </div>

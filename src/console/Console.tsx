@@ -1,3 +1,4 @@
+import { withRumAction } from "../lib/rum-actions.js";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
@@ -68,7 +69,7 @@ export function AdminGate({
           Ask the facilitator for access. Region captains use the{" "}
           <a href="#/captain">captain dashboard</a>.
         </p>
-        <button className="btn ghost" onClick={() => signOut(auth)}>
+        <button className="btn ghost" onClick={() => withRumAction("User Logout", () => signOut(auth))}>
           Sign out
         </button>
       </div>
@@ -133,7 +134,7 @@ function ConsoleBody({ email }: { email: string }) {
               </button>
             ))}
           </div>
-          <button className="btn ghost sm" onClick={() => signOut(auth)}>
+          <button className="btn ghost sm" onClick={() => withRumAction("User Logout", () => signOut(auth))}>
             Sign out
           </button>
         </div>

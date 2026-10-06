@@ -1,3 +1,4 @@
+import { withRumAction } from "../lib/rum-actions.js";
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { signOut } from "firebase/auth";
@@ -139,7 +140,7 @@ export default function Join() {
             <button
               type="button"
               className="btn ghost sm"
-              onClick={() => signOut(auth)}
+              onClick={() => withRumAction("User Logout", () => signOut(auth))}
             >
               Switch account
             </button>

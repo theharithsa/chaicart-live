@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Patch source-map-js and UUID dependencies, replacing an ineffective nested override; clean frontend and Functions audits report zero vulnerabilities.
+
 - Respect completed InspiredLearning erasure during workshop archival without recreating deleted portal history; in-progress erasure still blocks archival.
 - Allow learners to read their own privacy marker and global facilitators to review it; deny all client marker writes.
 

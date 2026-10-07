@@ -42,3 +42,5 @@ export const telemetryIngest = onRequest({ region: 'asia-south1', secrets: [plat
 });
 
 export { workshopAction } from './workshop.js';
+
+export { auditWorkshopSession, auditWorkshopRecords, auditStationHandoffs, deliverWorkshopBusinessEvent, retryWorkshopBusinessEvents } from './workshop-audit.js';

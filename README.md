@@ -111,3 +111,7 @@ Production browser builds require `VITE_TELEMETRY_ENABLED=true`. The telemetry g
 - **Setup → Sessions → Delete** requires typing the exact session code. The server locks participation, then recursively deletes all nested records. Failure is visible and can be retried. Test deletion only with disposable rehearsal sessions; there is no restore button.
 
 Deploy the backend **before** the frontend: `npx firebase-tools deploy --project chaicloud-workshop --only functions:telemetry:workshopAction,functions:telemetry:telemetryIngest,firestore:rules,hosting`. The new callable uses the existing Dynatrace secret and requires the Firebase runtime service account to have Firestore access, as the telemetry codebase’s default runtime normally does. No ingestion token is shipped to the browser.
+
+## Workshop lifecycle audit and BizEvents
+
+See [Business observability](docs/BUSINESS-OBSERVABILITY.md) for client interactions, committed scoring, surveys, votes, retry delivery and the explicit workshop completion control. Canonical outcomes are exported by `chaicart-live-audit`; browser events are separately labeled client-observed.

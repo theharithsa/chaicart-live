@@ -6,6 +6,7 @@ service cloud.firestore {
   function facilitator(){return google() && exists(/databases/$(database)/documents/admins/$(request.auth.token.email)) && get(/databases/$(database)/documents/admins/$(request.auth.token.email)).data.get('role','facilitator') == 'facilitator';}
   function validTeam(t){return t is string && t.matches('^(mumbai|chennai|pune|delhi)-1[a-f]$');}
   function regionTeam(r,t){return (r=='west' && t.matches('^mumbai-1[a-f]$')) || (r=='south' && t.matches('^chennai-1[a-f]$')) || (r=='central' && t.matches('^pune-1[a-f]$')) || (r=='north' && t.matches('^delhi-1[a-f]$'));}
+  match /workshopTelemetry/{id}{allow read:if facilitator();allow write:if false;}
   match /workshopContent/{id}{allow read:if facilitator();allow write:if false;}
   match /admins/{email}{allow read:if signedIn() && request.auth.token.email==email;allow write:if false;}
   match /sessions/{sid}{

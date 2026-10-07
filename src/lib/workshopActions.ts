@@ -1,3 +1,4 @@
+import { businessEvent } from "./rum-business.js";
 import { getApp } from "firebase/app";
 import {
   connectFunctionsEmulator,
@@ -24,21 +25,40 @@ export async function workshopAction(data: Record<string, unknown>) {
   const transactionId = crypto.randomUUID();
   return observe(
     "workshop." + String(data.action),
-    async (span) =>
-      (
-        await call({
-          ...data,
-          clientContext: {
-            traceId: span.spanContext().traceId,
-            spanId: span.spanContext().spanId,
-            transactionId,
-          },
-        })
-      ).data,
+    async (span) => {
+      const response = await call({
+        ...data,
+        clientContext: {
+          traceId: span.spanContext().traceId,
+          spanId: span.spanContext().spanId,
+          transactionId,
+        },
+      });
+      businessEvent("staff.action.completed", {
+        operation: String(data.action),
+        "workshop.session.id": String(data.sid),
+        "transaction.id": transactionId,
+        ...(typeof data.teamId === "string"
+          ? { "workshop.team.id": data.teamId }
+          : {}),
+        ...(typeof data.activity === "string"
+          ? { "workshop.activity.id": data.activity }
+          : {}),
+        ...(typeof data.delta === "number"
+          ? { "credits.delta": data.delta }
+          : {}),
+        outcome: "success",
+      });
+      return response.data;
+    },
     {
       "workshop.session.id": String(data.sid),
-      ...(typeof data.teamId === "string" ? { "workshop.team.id": data.teamId } : {}),
-      ...(typeof data.activity === "string" ? { "workshop.activity.id": data.activity } : {}),
+      ...(typeof data.teamId === "string"
+        ? { "workshop.team.id": data.teamId }
+        : {}),
+      ...(typeof data.activity === "string"
+        ? { "workshop.activity.id": data.activity }
+        : {}),
       "transaction.id": transactionId,
     },
   );

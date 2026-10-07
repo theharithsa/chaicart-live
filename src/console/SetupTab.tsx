@@ -7,7 +7,7 @@ import {
   setDoc,
   updateDoc,
 } from "../lib/firestore";
-import { db } from "../firebase";
+import { auth, db } from "../firebase";
 import { TEAMS, REGIONS } from "../content/teams";
 import { initialScores } from "../lib/credits";
 import { useCollectionData } from "../lib/hooks";
@@ -80,6 +80,7 @@ export default function SetupTab({
         );
       tx.set(parent, {
         schemaVersion: 2,
+        createdBy: auth.currentUser?.uid ?? "",
         workshopDate: date,
         certificatesIssued: false,
         networkingOpen: true,

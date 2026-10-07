@@ -1,3 +1,4 @@
+import { businessEvent } from "../lib/rum-business.js";
 import { withRumAction } from "../lib/rum-actions.js";
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
@@ -65,6 +66,12 @@ export default function Join() {
         },
         teamCode,
       );
+      businessEvent("participant.joined", {
+        "workshop.session.id": sid,
+        "workshop.team.id": teamId,
+        "participant.role": role,
+        outcome: "success",
+      });
       navigate("/play");
     } catch (err) {
       setError(`Could not join: ${(err as Error).message}`);

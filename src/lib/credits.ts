@@ -1,3 +1,4 @@
+import { businessEvent } from "./rum-business.js";
 import {
   collection,
   deleteField,
@@ -82,6 +83,7 @@ export async function applyCredits(
     tx.set(lbRef, { scores, updatedAt: serverTimestamp() }, { merge: true });
     if (key) tx.set(appliedRef, { [key]: reason }, { merge: true });
   });
+  for(const c of real) businessEvent("credits.observed", {"workshop.session.id":sid,"workshop.team.id":c.teamId,"credits.delta":Math.round(c.delta),outcome:"success"});
   return real.length;
 }
 

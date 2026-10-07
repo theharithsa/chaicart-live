@@ -38,7 +38,8 @@
           "region": "asia-south1"
         }
       }
-    ]
+    ],
+    "site": "chaicloud-workshop"
   },
   "emulators": {
     "firestore": {

@@ -181,6 +181,7 @@ export async function executeWorkshopAction(db, actor, data) {
           base.collection("quizResults").doc(r.uid),
           {
             teamId: r.teamId,
+            gradedBy: actor.uid,
             credits: (previous.get(r.uid)?.credits || 0) + r.credits,
             answers: {
               [qi]: {

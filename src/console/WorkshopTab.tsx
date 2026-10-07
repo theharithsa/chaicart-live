@@ -210,6 +210,35 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
             ? "Withdraw certificate release"
             : "Issue participation certificates to registered students"}
         </button>
+        <button
+          className="btn ghost"
+          onClick={() => {
+            if (
+              !confirm(
+                session.completedAt
+                  ? "Reopen this workshop?"
+                  : "Mark this workshop complete and close submissions and networking?",
+              )
+            )
+              return;
+            run(() =>
+              patchSession(
+                sid,
+                session.completedAt
+                  ? { completedAt: null }
+                  : {
+                      completedAt: serverTimestamp(),
+                      currentActivity: null,
+                      networkingOpen: false,
+                      state: { ...session.state, phase: "locked" },
+                    },
+              ),
+            );
+          }}
+        >
+          {session.completedAt ? "Reopen workshop" : "Mark workshop complete"}
+        </button>
+        <p>Completion is recorded separately from certificate release.</p>
         <p>
           Release only after checking attendance. Workshop date is used on every
           certificate.

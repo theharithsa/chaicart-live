@@ -16,6 +16,7 @@ export interface SessionDoc {
   schemaVersion?: number;
   workshopDate?: string;
   certificatesIssued?: boolean;
+  completedAt?: Timestamp | null;
   networkingOpen?: boolean;
   title: string;
   currentActivity: string | null;

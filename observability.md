@@ -24,7 +24,7 @@ Deployment snapshot: 5 October 2026. This runbook covers the workshop website, A
 |---|---|---|---|
 | Workshop and facilitator materials | https://theharithsa.github.io/chaicart-cloud-workshop/ | GitHub Pages, static HTML | None; RUM only |
 | ChaiCart Demo | https://chaicart-workshop-vh-20261003.azurewebsites.net/ | Azure Linux App Service, Node.js | `chaicart-demo` |
-| ChaiCart Live | https://chaicloud-workshop.web.app/ | Firebase Hosting, Auth, Firestore; Node.js 22 telemetry and staff-action Functions | `chaicart-live-browser`, `chaicart-live-telemetry`, `chaicart-live-workshop` |
+| ChaiCart Live | https://chaicloud-workshop.web.app/ | Firebase Hosting, Auth, Firestore; Node.js 22 telemetry and staff-action Functions | `chaicart-live-browser`, `chaicart-live-telemetry`, `chaicart-live-workshop`, `chaicart-live-audit` |
 
 ```mermaid
 flowchart LR
@@ -52,7 +52,7 @@ RUM goes directly to its configured beacon. OTLP credentials are held by the bac
 
 The demo is one Node process. Named payment/database/business-system stages are logical components, not separate deployed microservices. The pool is a real in-process concurrency limiter, while database/gateway timings are explicitly simulated. OTel runtime metrics are process metrics, not App Service VM/host monitoring. Problems/alerts require tenant configuration; a scenario does not automatically create a Dynatrace Problem.
 
-Live's reports are marked `telemetry.source=client-observed`. They measure browser-visible SDK latency/outcome, including cache/network effects; they do not trace inside Google's Firestore service. Scores and audit evidence still come from Firestore and the credit ledger. Browser reports can be missing during disconnections or tab closure.
+Live's browser reports are marked `telemetry.source=client-observed`. They measure browser-visible SDK latency/outcome, including cache/network effects; they do not trace inside Google's Firestore service. Scores and audit evidence come from Firestore and the credit ledger. Committed changes now independently produce canonical BizEvents through a durable audit queue; browser BizEvents remain client-observed. See the lifecycle guide below. Browser reports can be missing during disconnections or tab closure.
 
 ## RUM configuration
 
@@ -363,3 +363,7 @@ Live actions: User Login/Logout, Save/Update/Submit Workshop Work, Save Workshop
 Current API events use flat `event_properties.*` fields from an allowlist. No per-checkout event modifier is installed. Current user-action API availability depends on the enabled agent modules; Classic fallback supports custom action names and identity, while the new custom event payload is emitted only by the current API. Event/session property visibility may require corresponding Dynatrace configuration; that configuration was not changed. No new session properties or fictional user tier are introduced.
 
 Tests cover current/Classic/missing/throwing agents, completion after failure, nested-action suppression and automatic-action reuse. Local browser verification exercised login, cart, checkout transaction/order properties, and logout back to anonymous identity with a controlled API stub. This verifies calls, not Dynatrace beacon receipt or tenant event visibility.
+
+## Workshop lifecycle audit and BizEvents
+
+See [Business observability](docs/BUSINESS-OBSERVABILITY.md) for client interactions, committed scoring, surveys, votes, retry delivery and the explicit workshop completion control. Canonical outcomes are exported by `chaicart-live-audit`; browser events are separately labeled client-observed.

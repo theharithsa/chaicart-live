@@ -1,5 +1,5 @@
 import { doc, updateDoc } from "../lib/firestore";
-import { db } from "../firebase";
+import { auth, db } from "../firebase";
 import type { Activity } from "../content/activities";
 import type { SessionDoc, SessionState, Student, Submission } from "../types";
 import type { WithId } from "../lib/hooks";
@@ -22,7 +22,7 @@ export interface PanelProps {
 export const patchSession = (
   sid: string,
   patch: Partial<SessionDoc> | Record<string, unknown>,
-) => updateDoc(doc(db, `sessions/${sid}`), patch);
+) => updateDoc(doc(db, `sessions/${sid}`), { ...patch, lastActorUid: auth.currentUser?.uid ?? "" });
 
 export function stateFor(activity: Activity): SessionState {
   return {

@@ -1,7 +1,7 @@
 const HEX32 = /^[a-f0-9]{32}$/;
 const HEX16 = /^[a-f0-9]{16}$/;
-const NAMES = /^(firestore\.(document\.(read|write|update|delete|add)|query\.read|transaction(\.read)?|batch\.commit|listener\.(initial|error|recovered))|browser\.error|auth\.google|workshop\.(applyReview|manualAward|scoreCloud|undoCloud|deleteSession))$/;
-const ATTRIBUTES = new Set(['transaction.id', 'db.system.name', 'db.operation.name', 'db.collection.name', 'workshop.session.id', 'workshop.team.id', 'workshop.activity.id', 'user.role', 'error.type']);
+const NAMES = /^(firestore\.(document\.(read|write|update|delete|add)|query\.read|transaction(\.read)?|batch\.commit|listener\.(initial|error|recovered))|browser\.(error|interaction|form)|auth\.google|workshop\.(applyReview|manualAward|scoreCloud|undoCloud|deleteSession))$/;
+const ATTRIBUTES = new Set(['ui.control', 'ui.control.id', 'page', 'transaction.id', 'db.system.name', 'db.operation.name', 'db.collection.name', 'workshop.session.id', 'workshop.team.id', 'workshop.activity.id', 'user.role', 'error.type']);
 
 export function validateEvents(body, now = Date.now()) {
   if (!body || !Array.isArray(body.events) || body.events.length < 1 || body.events.length > 24) throw new Error('Invalid event batch');

@@ -1,3 +1,4 @@
+import * as rumBusiness from "../src/lib/rum-business.js";
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -303,7 +304,9 @@ test("concurrent award invokes actual scoring transaction once, correction is ap
           ? teams
           : name === "firebase/firestore" || name === "./firestore"
             ? firestore
-            : require(name),
+            : name === "./rum-business.js"
+              ? rumBusiness
+              : require(name),
     crypto,
   );
   const results = await Promise.allSettled([
@@ -786,4 +789,13 @@ test("incorrect timeline review can be approved at zero credits", async () => {
       updatedAt: serverTimestamp(),
     }),
   );
+});
+
+test("business-event outbox is facilitator-readable and never client-writable", async () => {
+  await env.withSecurityRulesDisabled(async context => setDoc(doc(context.firestore(), "workshopTelemetry/protected"), {status:"pending"}));
+  await assertFails(getDoc(doc(db(), "workshopTelemetry/protected")));
+  await assertFails(getDoc(doc(db("cap", "captain@example.com"), "workshopTelemetry/protected")));
+  const facilitatorDb=db("fac", "facilitator@example.com");
+  await assertSucceeds(getDoc(doc(facilitatorDb, "workshopTelemetry/protected")));
+  await assertFails(setDoc(doc(facilitatorDb, "workshopTelemetry/forged"), {status:"delivered"}));
 });

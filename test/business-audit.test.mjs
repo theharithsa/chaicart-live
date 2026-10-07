@@ -18,7 +18,12 @@ const event = (id) => ({
     id,
     source: "chaicart-test",
     type: "com.chaicart.test",
-    data: { "credits.delta": 100 },
+    data: {
+      "credits.delta": 100,
+      "workshop.session.id": "AUDITTEST",
+      "actor.id": "captain-test",
+      "transaction.id": "transaction-test",
+    },
   },
 });
 before(() => {
@@ -51,6 +56,10 @@ test("403 is retained for retry without blocking or altering workshop work", asy
     },
   });
   assert.equal(result.outcome, "retry");
+  assert.equal(result.attributes["workshop.session.id"], "AUDITTEST");
+  assert.equal(result.attributes["actor.id"], "captain-test");
+  assert.equal(result.attributes["transaction.id"], "transaction-test");
+  assert.equal(result.attributes["credits.delta"], undefined);
   const stored = (await db.doc("workshopTelemetry/" + id).get()).data();
   assert.equal(stored.status, "pending");
   assert.equal(stored.lastStatus, 403);

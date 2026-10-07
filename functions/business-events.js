@@ -176,7 +176,9 @@ export function workshopBusinessEvents({
           ? Object.values(ratings).reduce((a, b) => a + b, 0) /
             Object.keys(ratings).length
           : 0,
-        ...(data.activity === "survey-post" && Number.isFinite(values.nps) ? { "survey.nps": values.nps } : {}),
+        ...(data.activity === "survey-post" && Number.isFinite(values.nps)
+          ? { "survey.nps": values.nps }
+          : {}),
       });
     } else if (typeof data.choice === "string" && team(data.choice))
       add("vote.submitted", { ...base, "vote.target.team.id": data.choice });
@@ -205,7 +207,7 @@ export function workshopBusinessEvents({
         "submission.final": !!data.locked,
       });
   } else if (collection === "quizResults") {
-    common["workshop.activity.id"]="cloud-or-not";
+    common["workshop.activity.id"] = "cloud-or-not";
     if (!after) return [];
     for (const [q, result] of Object.entries(data.answers || {}))
       if (!eq(before?.answers?.[q], result))

@@ -39,17 +39,14 @@ export async function queueEvents(db, events) {
   let created = 0;
   for (const event of events) {
     try {
-      await db
-        .collection(collection)
-        .doc(event.id)
-        .create({
-          payload: event.payload,
-          status: "pending",
-          attempts: 0,
-          nextAttemptAt: 0,
-          leaseUntil: 0,
-          createdAt: FieldValue.serverTimestamp(),
-        });
+      await db.collection(collection).doc(event.id).create({
+        payload: event.payload,
+        status: "pending",
+        attempts: 0,
+        nextAttemptAt: 0,
+        leaseUntil: 0,
+        createdAt: FieldValue.serverTimestamp(),
+      });
       created++;
     } catch (error) {
       if (error.code !== 6 && error.code !== "already-exists") throw error;
@@ -83,6 +80,23 @@ export async function deliverQueuedEvent(
     return record.payload;
   });
   if (!payload) return { outcome: "skipped" };
+  const attributes = Object.fromEntries(
+    Object.entries(payload.data || {}).filter(
+      ([key, value]) =>
+        [
+          "workshop.session.id",
+          "workshop.team.id",
+          "workshop.activity.id",
+          "participant.id",
+          "actor.id",
+          "actor.email",
+          "actor.role",
+          "transaction.id",
+          "event.id",
+        ].includes(key) &&
+        ["string", "number", "boolean"].includes(typeof value),
+    ),
+  );
   try {
     await send(payload);
     await db.runTransaction(async (tx) => {
@@ -95,7 +109,7 @@ export async function deliverQueuedEvent(
           lastStatus: 202,
         });
     });
-    return { outcome: "delivered", type: payload.type };
+    return { outcome: "delivered", type: payload.type, attributes };
   } catch (error) {
     const status = Number(error.status) || 0;
     await db.runTransaction(async (tx) => {
@@ -107,7 +121,7 @@ export async function deliverQueuedEvent(
           nextAttemptAt: now + retryDelay(snap.data().attempts, status),
         });
     });
-    return { outcome: "retry", status, type: payload.type };
+    return { outcome: "retry", status, type: payload.type, attributes };
   }
 }
 async function actorContext(event, data, sid) {
@@ -118,8 +132,16 @@ async function actorContext(event, data, sid) {
   )
     ? data?.actor || data?.gradedBy
     : undefined;
-  const sessionActor=path.split("/").length===2 ? data?.lastActorUid || data?.createdBy : undefined;
-  const uid = typeof recordActor === "string" ? recordActor : typeof sessionActor === "string" ? sessionActor : event.authId;
+  const sessionActor =
+    path.split("/").length === 2
+      ? data?.lastActorUid || data?.createdBy
+      : undefined;
+  const uid =
+    typeof recordActor === "string"
+      ? recordActor
+      : typeof sessionActor === "string"
+        ? sessionActor
+        : event.authId;
   const principal = { authType: event.authType || "system" };
   if (!uid) return principal;
   try {
@@ -229,11 +251,19 @@ async function deliver(id) {
         const result = await deliverQueuedEvent(getFirestore(), id, {
           send: (payload) => exportBusinessEvent(payload, token.value()),
         });
-        if(result.outcome === "retry") { span.setStatus({code:SpanStatusCode.ERROR,message:"Business event delivery rejected"});span.setAttribute("error.type","ingest."+String(result.status)); }
+        span.setAttributes(result.attributes || {});
+        if (result.outcome === "retry") {
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: "Business event delivery rejected",
+          });
+          span.setAttribute("error.type", "ingest." + String(result.status));
+        }
         t.log(
           result.outcome === "retry" ? "ERROR" : "INFO",
           "Business event delivery status",
           {
+            ...result.attributes,
             "event.name": "business.event.delivery",
             "business.event.id": id,
             "delivery.outcome": result.outcome,

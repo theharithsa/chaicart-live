@@ -22,7 +22,11 @@ export interface PanelProps {
 export const patchSession = (
   sid: string,
   patch: Partial<SessionDoc> | Record<string, unknown>,
-) => updateDoc(doc(db, `sessions/${sid}`), { ...patch, lastActorUid: auth.currentUser?.uid ?? "" });
+) =>
+  updateDoc(doc(db, `sessions/${sid}`), {
+    ...patch,
+    lastActorUid: auth.currentUser?.uid ?? "",
+  });
 
 export function stateFor(activity: Activity): SessionState {
   return {

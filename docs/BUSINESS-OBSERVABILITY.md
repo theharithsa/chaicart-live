@@ -92,3 +92,21 @@ fetch logs, from: now()-24h
 The automated checks cover native RUM API selection and safe fields; actual Firestore schemas and stable IDs; acceptance/failure HTTP statuses; duplicate capture, concurrent delivery, failed ingestion and expired-lease recovery; and facilitator-only read/server-only write rules. Use isolated test sessions for production verification. Check outbox status=delivered and lastStatus=202, then locate those event IDs in Dynatrace. An HTTP acceptance check alone does not prove a Grail query or dashboard has been verified.
 
 References: [Dynatrace BizEvents API](https://docs.dynatrace.com/docs/dynatrace-api/environment-api/business-analytics-v2), [RUM business events](https://docs.dynatrace.com/docs/observe/business-observability/bo-events-capturing/web-and-mobile-rum), [Firestore events](https://firebase.google.com/docs/functions/firestore-events).
+
+## Release verification — 7 October 2026
+
+The replacement classic credential accepted the isolated BizEvents permission probe with HTTP202 and each OTLP signal with HTTP200. No token is recorded here.
+
+Production session `OBS0710CHECK` generated nine delivered audit events. Session creation, actual student joining, numerical post-survey submission, a synthetic captain credit award, voting and workshop completion all reached HTTP202 on their first attempts. Source records were removed after verification. These checks used synthetic identities, not workshop participants. Filter out this session when building workshop reports. Dynatrace Grail searches and dashboard results have not been independently queried in this release.
+
+Validation: application build, lint, seven RUM tests, seventeen backend tests and thirty-six emulator integration tests passed in GitHub CI. Four focused outbox tests additionally passed after adding delivery correlation fields.
+
+| Review area | Check |
+|---|---|
+| Correctness | Actual submission, student, ledger and quiz-result schemas; completion distinct from certificate release |
+| Reliability | Deterministic capture, delivery leases, retained failures and scheduled recovery |
+| Security | Server-only outbox mutation; verified identity; token absent from browser and source |
+| Privacy | Explicit field extraction; no free-text submissions, feedback or join codes |
+| Performance | Bounded concurrency, batched retries, bounded metric dimensions |
+| Maintainability | Pure event catalog, documented source/authority and isolated tests |
+| Documentation | Completion steps, endpoint/scopes, retention, deduplication and verification limits |

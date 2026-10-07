@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Respect completed InspiredLearning erasure during workshop archival without recreating deleted portal history; in-progress erasure still blocks archival.
+- Allow learners to read their own privacy marker and global facilitators to review it; deny all client marker writes.
+
 - Connect InspiredLearning permanent learner records and authenticated certificates; separate the portal announcement from verified completion.
 - Protect completed-session deletion until all participants have durable reviewed records and reserve archived session codes.
 - Add owner-scoped learning rules and canonical-event retry index.

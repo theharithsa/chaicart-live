@@ -1129,6 +1129,9 @@ test("offline edits remain pending until reconnect and do not count as confirmed
   const student = await actor(browser, "coo@example.invalid", "/play");
   await launch("shark-pitch");
   const ref = base().collection("submissions").doc("shark-pitch__mumbai-1a");
+  await expect(
+    student.page.getByRole("button", { name: "Update", exact: true }),
+  ).toBeEnabled();
   await student.page
     .getByRole("textbox", {
       name: "Our cloud choice, business value and 60-second pitch",

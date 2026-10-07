@@ -1200,12 +1200,15 @@ test("certificate gating, service-model nested leaderboard, completion and reope
   expect(closed.currentActivity).toBeNull();
   expect(closed.networkingOpen).toBe(false);
   expect(closed.state.phase).toBe("locked");
+  // Simulate an older completed session created before permanent-record protection.
+  await base().update({learningArchiveRequired:null});
   await fac.page
     .getByRole("button", { name: "Reopen workshop", exact: true })
     .click();
   await expect
     .poll(async () => (await base().get()).data()?.completedAt)
     .toBeNull();
+  expect((await base().get()).data().learningArchiveRequired).toBe(true);
   await expect
     .poll(
       () =>

@@ -241,7 +241,7 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
               patchSession(
                 sid,
                 session.completedAt
-                  ? { completedAt: null }
+                  ? { completedAt: null, learningArchiveRequired: true }
                   : {
                       completedAt: serverTimestamp(),
                       learningArchiveRequired: true,
@@ -255,10 +255,10 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
         >
           {session.completedAt ? "Reopen workshop" : "Mark workshop complete"}
         </button>
-        <p>Completion is recorded separately from certificate release.</p>
+        <p>Completion is verified separately from the certificate portal announcement.</p>
         <p>
-          Release only after checking attendance. Workshop date is used on every
-          certificate.
+          The portal is available throughout the workshop. Staff verifies attendance
+          and publishes permanent certificates after final scoring.
         </p>
       </div>
       <details className="card workshop-tool">

@@ -19,6 +19,13 @@ export default defineConfig({
     command: "npm run dev -- --host 127.0.0.1 --port 5180 --strictPort",
     url: "http://127.0.0.1:5180",
     reuseExistingServer: false,
-    env: { VITE_USE_EMULATORS: "true", VITE_TELEMETRY_ENABLED: "false" },
+    env: {
+      VITE_USE_EMULATORS: "true",
+      VITE_TELEMETRY_ENABLED: "false",
+      VITE_FIREBASE_API_KEY: "demo-key",
+      VITE_FIREBASE_PROJECT_ID: "demo-chaicart",
+      VITE_FIREBASE_AUTH_DOMAIN: "localhost",
+      VITE_FIREBASE_APP_ID: "demo-app",
+    },
   },
 });

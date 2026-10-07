@@ -39,6 +39,9 @@ async function actor(browser, email, path = "/", options = {}) {
   const context = await browser.newContext(options);
   await context.route("https://**dynatrace.com/**", (route) => route.abort());
   const page = await context.newPage();
+  page.on("pageerror", (error) =>
+    console.error("Rehearsal page error:", error.message),
+  );
   page.on("dialog", (d) => d.accept());
   await page.goto("/");
   const uid = await page.evaluate(
@@ -114,6 +117,15 @@ test("facilitator creates session, duplicate/invalid creation recovers, 24 team 
   browser,
 }) => {
   const { context, page } = await actor(browser, adminEmail, "/console");
+  await expect(page.getByRole("button", { name: "Setup", exact: true }))
+    .toBeVisible({ timeout: 30000 })
+    .catch(async (error) => {
+      console.error(
+        "Rehearsal access screen:",
+        await page.locator("body").innerText(),
+      );
+      throw error;
+    });
   await page.getByRole("button", { name: "Setup", exact: true }).click();
   const form = page
     .locator("form")

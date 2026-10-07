@@ -27,8 +27,8 @@ export default function Join() {
 
   const [teamCode, setTeamCode] = useState("");
   const [name, setName] = useState("");
-  const [semester, setSemester] = useState<"5" | "7" | "">("");
-  const [branch, setBranch] = useState("");
+  const [semester, setSemester] = useState<Student["semester"] | "">("");
+  const [branch, setBranch] = useState("CSE - Cloud Computing");
   const [teamId, setTeamId] = useState("");
   const [role, setRole] = useState<RoleId | "">("");
   const [busy, setBusy] = useState(false);
@@ -96,7 +96,7 @@ export default function Join() {
   return (
     <div className="page stack" style={{ gap: 18, paddingTop: 32 }}>
       <div>
-        <div className="kicker">Session {sid}</div>
+        <div className="kicker">GM University · Session {sid}</div>
         <h1 style={{ marginTop: 6 }}>Join your startup</h1>
         <p>
           Your captain will give you a team name and join code. Each role has
@@ -180,13 +180,23 @@ export default function Join() {
               Semester
               <select
                 value={semester}
-                onChange={(e) => setSemester(e.target.value as "5" | "7")}
+                onChange={(e) => setSemester(e.target.value as Student["semester"])}
               >
                 <option value="" disabled>
                   Choose…
                 </option>
-                <option value="5">5th</option>
-                <option value="7">7th</option>
+                <optgroup label="2nd year">
+                  <option value="3">3rd</option>
+                  <option value="4">4th</option>
+                </optgroup>
+                <optgroup label="3rd year">
+                  <option value="5">5th</option>
+                  <option value="6">6th</option>
+                </optgroup>
+                <optgroup label="4th year">
+                  <option value="7">7th</option>
+                  <option value="8">8th</option>
+                </optgroup>
               </select>
             </label>
             <label className="field" style={{ flex: 2 }}>

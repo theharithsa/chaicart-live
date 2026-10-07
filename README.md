@@ -1,6 +1,6 @@
 # ChaiCart Live
 
-The paperless student and captain app for the [ChaiCart Cloud Workshop](https://theharithsa.github.io/chaicart-cloud-workshop/). Hosted at [chaicloud-workshop.web.app](https://chaicloud-workshop.web.app/). The [Azure ordering/fault demo](https://chaicart-workshop-vh-20261003.azurewebsites.net/) remains a separate app, linked from student Resources.
+The paperless student and captain app for GM University's CSE - Cloud Computing workshop, for 2nd, 3rd and 4th year students. Hosted at [gmu.inspi.in](https://gmu.inspi.in/). [Workshop materials](https://theharithsa.github.io/chaicart-cloud-workshop/) and the [Azure ordering/fault demo](https://chaicart-workshop-vh-20261003.azurewebsites.net/) remain separate sites.
 
 ## Student flow
 

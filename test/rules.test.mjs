@@ -245,6 +245,30 @@ test("networking remains open while another activity runs", async () => {
     }),
   );
 });
+test("GM University registration accepts semesters 3-8 and rejects other values", async () => {
+  for (const semester of ["3", "4", "5", "6", "7", "8", "1", "9", 3]) {
+    const uid = `semester-${semester}-${typeof semester}`;
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), path("teams/mumbai-1c")), {
+        teamId: "mumbai-1c",
+        joinCode: "GMU",
+        slots: { CEO: uid },
+      });
+    });
+    const registration = setDoc(doc(db(uid), path(`students/${uid}`)), {
+      ...base,
+      semester,
+      teamId: "mumbai-1c",
+      role: "CEO",
+      joinedAt: serverTimestamp(),
+    });
+    if (typeof semester === "string" && ["3", "4", "5", "6", "7", "8"].includes(semester)) {
+      await assertSucceeds(registration);
+    } else {
+      await assertFails(registration);
+    }
+  }
+});
 test("role claims are atomic and cannot take occupied role", async () => {
   const d = db("new");
   await assertSucceeds(

@@ -10,7 +10,7 @@ initializeApp();
 const platformToken = defineSecret('DYNATRACE_PLATFORM_TOKEN');
 const allow = rateLimiter();
 let telemetry;
-const allowedOrigins = new Set(['https://chaicloud-workshop.web.app', 'https://chaicloud-workshop.firebaseapp.com']);
+const allowedOrigins = new Set(['https://gmu.inspi.in', 'https://chaicloud-workshop.web.app', 'https://chaicloud-workshop.firebaseapp.com']);
 
 export const telemetryIngest = onRequest({ region: 'asia-south1', secrets: [platformToken], cors: false, invoker: 'public', maxInstances: 2, concurrency: 40, timeoutSeconds: 30, memory: '256MiB' }, async (req, res) => {
   res.set('cache-control', 'no-store');

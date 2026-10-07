@@ -45,7 +45,7 @@ service cloud.firestore {
       && request.resource.data.keys().hasOnly(['name','semester','branch','teamId','role','joinedAt'])
       && request.resource.data.name is string && request.resource.data.name.size()>1 && request.resource.data.name.size()<=60
       && request.resource.data.branch is string && request.resource.data.branch.size()>0 && request.resource.data.branch.size()<=60
-      && request.resource.data.semester in ['5','7'] && request.resource.data.role in ['CEO','CTO','SRE','CFO','COO']
+      && request.resource.data.semester in ['3','4','5','6','7','8'] && request.resource.data.role in ['CEO','CTO','SRE','CFO','COO']
       && validTeam(request.resource.data.teamId) && request.resource.data.joinedAt==request.time
       && getAfter(/databases/$(database)/documents/sessions/$(sid)/teams/$(request.resource.data.teamId)).data.slots[request.resource.data.role]==uid;
     allow update:if facilitator() || (google() && uid==request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','branch']) && request.resource.data.name is string && request.resource.data.name.size()<=60 && request.resource.data.branch is string && request.resource.data.branch.size()<=60);

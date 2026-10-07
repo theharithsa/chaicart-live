@@ -28,7 +28,7 @@ export interface SessionDoc {
 
 export interface Student {
   name: string;
-  semester: "5" | "7";
+  semester: "3" | "4" | "5" | "6" | "7" | "8";
   branch: string;
   teamId: string;
   role: RoleId;

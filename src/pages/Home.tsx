@@ -10,16 +10,16 @@ export default function Home() {
       <div className="star" />
       <div>
         <div className="kicker">
-          Cloud Computing &amp; Business Systems Workshop
+          GM University · CSE – Cloud Computing
         </div>
         <h1 style={{ marginTop: 8 }}>
-          Your startup.
+          ChaiCart at GM University.
           <br />
           Two days to build it.
         </h1>
         <p>
-          Join four teammates, build your cloud architecture, and put it to the
-          test. Your activities, feedback and credits live here.
+          Welcome, 2nd, 3rd and 4th year students. Join four teammates, build
+          your cloud architecture, and put it to the test.
         </p>
       </div>
       <ol className="join-steps" aria-label="How to join">

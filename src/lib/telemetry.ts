@@ -226,6 +226,8 @@ export async function observe<T>(
     )
       businessEvent("operation.completed", {
         operation: name,
+        trace_id: span.spanContext().traceId,
+        span_id: span.spanContext().spanId,
         outcome,
         "transaction.id": transaction,
         ...attributes,

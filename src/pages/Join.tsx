@@ -17,10 +17,12 @@ export default function Join() {
   const user = useAuthUser();
   const navigate = useNavigate();
   const session = useDocData<SessionDoc>(
-    user && sid ? `sessions/${sid}` : null,
+    user && isGoogleStudent(user) && sid ? `sessions/${sid}` : null,
   );
   const existing = useDocData<Student>(
-    user && sid ? `sessions/${sid}/students/${user.uid}` : null,
+    user && isGoogleStudent(user) && sid
+      ? `sessions/${sid}/students/${user.uid}`
+      : null,
   );
 
   const [teamCode, setTeamCode] = useState("");

@@ -7,7 +7,13 @@ import { defineSecret } from "firebase-functions/params";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
 import { randomUUID } from "node:crypto";
-import { SpanKind, SpanStatusCode } from "@opentelemetry/api";
+import {
+  context,
+  trace,
+  ROOT_CONTEXT,
+  SpanKind,
+  SpanStatusCode,
+} from "@opentelemetry/api";
 import {
   workshopBusinessEvents,
   exportBusinessEvent,
@@ -29,7 +35,7 @@ function monitor() {
   return (telemetry ||= createTelemetry("chaicart-live-audit", {
     endpoint:
       process.env.FUNCTIONS_EMULATOR === "true"
-        ? undefined
+        ? "http://127.0.0.1:8799/api/v2/otlp"
         : "https://indiacs.live.dynatrace.com/api/v2/otlp",
     token:
       process.env.FUNCTIONS_EMULATOR === "true" ? undefined : token.value(),
@@ -187,38 +193,62 @@ async function capture(event) {
       occurredAt: event.time,
       principal,
     });
-    await t.span(
-      "workshop.commit.audit",
-      {
-        "workshop.session.id": event.params.sid,
-        "audit.source.event.id": event.id,
-        "audit.event.count": events.length,
-        ...(principal.uid ? { "user.id": principal.uid } : {}),
-        ...(principal.email ? { "user.email": principal.email } : {}),
-      },
-      async () => {
-        const count = await queueEvents(getFirestore(), events);
-        if (count)
-          for (const { payload } of events) {
-            const flat = Object.fromEntries(
-              Object.entries(payload.data).filter(([, v]) =>
-                ["string", "number", "boolean"].includes(typeof v),
-              ),
-            );
-            for (const [key, value] of Object.entries(
-              payload.data["survey.ratings"] || {},
-            ))
-              flat["survey.rating." + key] = value;
-            t.log("INFO", "Workshop change committed", {
-              ...flat,
-              "audit.new.records": count,
-            });
+    const record = after || before || {};
+    const validTrace =
+      /^[0-9a-f]{32}$/.test(record.traceId || "") &&
+      !/^0+$/.test(record.traceId);
+    const validSpan =
+      /^[0-9a-f]{16}$/.test(record.spanId || "") && !/^0+$/.test(record.spanId);
+    const parent =
+      validTrace && validSpan
+        ? trace.setSpanContext(ROOT_CONTEXT, {
+            traceId: record.traceId,
+            spanId: record.spanId,
+            traceFlags: 1,
+            isRemote: true,
+          })
+        : ROOT_CONTEXT;
+    await context.with(parent, () =>
+      t.span(
+        "workshop.commit.audit",
+        {
+          "workshop.session.id": event.params.sid,
+          "audit.source.event.id": event.id,
+          "audit.event.count": events.length,
+          ...(principal.uid ? { "user.id": principal.uid } : {}),
+          ...(principal.email ? { "user.email": principal.email } : {}),
+        },
+        async (span) => {
+          const sc = span.spanContext();
+          for (const event of events) {
+            if (/^[0-9a-f]{32}$/.test(sc.traceId) && !/^0+$/.test(sc.traceId)) {
+              event.payload.data.trace_id = sc.traceId;
+              event.payload.data.span_id = sc.spanId;
+            }
           }
-        t.recordOperation("workshop.commit.audit", "success", 0, {
-          collection: path.split("/")[2] || "sessions",
-        });
-      },
-      SpanKind.CONSUMER,
+          const count = await queueEvents(getFirestore(), events);
+          if (count)
+            for (const { payload } of events) {
+              const flat = Object.fromEntries(
+                Object.entries(payload.data).filter(([, v]) =>
+                  ["string", "number", "boolean"].includes(typeof v),
+                ),
+              );
+              for (const [key, value] of Object.entries(
+                payload.data["survey.ratings"] || {},
+              ))
+                flat["survey.rating." + key] = value;
+              t.log("INFO", "Workshop change committed", {
+                ...flat,
+                "audit.new.records": count,
+              });
+            }
+          t.recordOperation("workshop.commit.audit", "success", 0, {
+            collection: path.split("/")[2] || "sessions",
+          });
+        },
+        SpanKind.CONSUMER,
+      ),
     );
   } finally {
     await t.flush();

@@ -173,3 +173,65 @@ test("native BizEvents exporter uses the separate ingest API and rejects 403 and
   assert.equal(retryDelay(1, 403), 3600000);
   assert.ok(retryDelay(1, 503) < 3600000);
 });
+
+test("every canonical event has stable transaction correlation and valid trace/span IDs", () => {
+  const paths = [
+    ["sessions/CORRELATE", null, { title: "Test" }],
+    [
+      "sessions/CORRELATE/students/student",
+      null,
+      { teamId: "mumbai-1a", role: "COO" },
+    ],
+    [
+      "sessions/CORRELATE/submissions/vote",
+      null,
+      { teamId: "mumbai-1a", activity: "shark-vote", choice: "mumbai-1b" },
+    ],
+    [
+      "sessions/CORRELATE/ledger/award",
+      null,
+      { teamId: "mumbai-1a", delta: 100 },
+    ],
+    [
+      "sessions/CORRELATE/submissions/survey",
+      null,
+      { uid: "student", activity: "survey-pre", values: { c0: 4 } },
+    ],
+  ];
+  for (const [path, before, after] of paths) {
+    const input = {
+      sourceId: "commit-" + path,
+      path,
+      before,
+      after,
+      occurredAt: "2026-10-07T00:00:00Z",
+    };
+    const first = workshopBusinessEvents(input),
+      second = workshopBusinessEvents(input);
+    for (let i = 0; i < first.length; i++) {
+      const data = first[i].payload.data;
+      assert.match(data.trace_id, /^[0-9a-f]{32}$/);
+      assert.match(data.span_id, /^[0-9a-f]{16}$/);
+      assert.match(data["transaction.id"], /^audit-[0-9a-f]{64}$/);
+      assert.equal(
+        data["transaction.id"],
+        second[i].payload.data["transaction.id"],
+      );
+      assert.equal(data["correlation.origin"], "firestore-audit");
+    }
+  }
+  const data = workshopBusinessEvents({
+    sourceId: "request-commit",
+    path: "sessions/CORRELATE/ledger/award",
+    before: null,
+    after: {
+      delta: 100,
+      transactionId: "request-transaction",
+      traceId: "a".repeat(32),
+    },
+    occurredAt: "2026-10-07T00:00:00Z",
+  })[0].payload.data;
+  assert.equal(data["transaction.id"], "request-transaction");
+  assert.equal(data.trace_id, "a".repeat(32));
+  assert.equal(data["correlation.origin"], "backend-request");
+});

@@ -29,3 +29,7 @@ node_modules.partial/
 *.log
 
 functions/.secret.local
+
+# Browser rehearsal reports and recordings
+playwright-report/
+test-results/

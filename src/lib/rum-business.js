@@ -25,6 +25,8 @@ const scalarKeys = new Set([
   "outcome",
   "error.type",
   "transaction.id",
+  "trace_id",
+  "span_id",
   "page",
   "ui.control",
   "ui.control.id",
@@ -53,6 +55,10 @@ export function businessEvent(name, properties = {}) {
       : {}),
     ...actor,
   };
+  fields["transaction.id"] = fields["event.id"];
+  fields["correlation.origin"] = properties["transaction.id"]
+    ? "browser-operation"
+    : "browser-event";
   for (const [key, value] of Object.entries(properties))
     if (
       scalarKeys.has(key) &&
@@ -90,6 +96,7 @@ export function installInteractionEvents(onInteraction) {
       );
       if (!element || element.disabled) return;
       const fields = {
+        "transaction.id": safe(() => crypto.randomUUID()) || "unavailable",
         "ui.control": element.tagName.toLowerCase(),
         "ui.control.id": id(element.id) ? element.id : "unnamed",
         page: location.hash.split("?")[0].slice(0, 40) || "#/",

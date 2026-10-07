@@ -367,3 +367,7 @@ Tests cover current/Classic/missing/throwing agents, completion after failure, n
 ## Workshop lifecycle audit and BizEvents
 
 See [Business observability](docs/BUSINESS-OBSERVABILITY.md) for client interactions, committed scoring, surveys, votes, retry delivery and the explicit workshop completion control. Canonical outcomes are exported by `chaicart-live-audit`; browser events are separately labeled client-observed.
+
+### Workshop BizEvent correlation
+
+New canonical workshop BizEvents always include `transaction.id`, `trace_id` and `span_id`. Callable ledger operations preserve backend context; direct Firestore commits use a real audit trace and stable audit transaction. Historical ingested records are unchanged. Browser events have transaction IDs; completed instrumented operations also include trace/span IDs. See [business observability](docs/BUSINESS-OBSERVABILITY.md) and [the rehearsal cases](docs/WORKSHOP-REHEARSAL.md).

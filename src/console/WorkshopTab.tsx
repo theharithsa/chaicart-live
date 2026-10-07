@@ -79,7 +79,7 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
         (r) =>
           r.teamId === team &&
           r.activity === "architecture" &&
-          r.status === "approved",
+          (r.status === "approved" || r.status === "applied"),
       )
     )
       throw new Error("Approve the architecture review first.");
@@ -178,7 +178,18 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
         </select>
       </label>
       <ReviewTeam facilitator key={`${sid}:${team}`} sid={sid} teamId={team} />
-      <button className="btn" onClick={() => run(freeze)}>
+      <button
+        className="btn"
+        disabled={
+          !reviews.some(
+            (r) =>
+              r.teamId === team &&
+              r.activity === "architecture" &&
+              (r.status === "approved" || r.status === "applied"),
+          )
+        }
+        onClick={() => run(freeze)}
+      >
         Freeze approved architecture for Day2
       </button>
       <div className="card stack">

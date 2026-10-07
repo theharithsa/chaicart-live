@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint src scripts test",
     "preview": "vite preview",
-    "test:rules": "npx --yes firebase-tools emulators:exec --project demo-chaicart --only firestore \"node --test --test-concurrency=1 test/rules.test.mjs test/workshop-actions.test.mjs test/business-audit.test.mjs\""
+    "test:rules": "npx --yes firebase-tools emulators:exec --project demo-chaicart --only firestore \"node --test --test-concurrency=1 test/rules.test.mjs test/workshop-actions.test.mjs test/business-audit.test.mjs\"",
+    "test:browser": "playwright test",
+    "test:rehearsal": "node scripts/run-rehearsal.mjs"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",
@@ -22,6 +24,7 @@
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.2",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^24.13.3",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.18",

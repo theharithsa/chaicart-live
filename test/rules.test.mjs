@@ -792,10 +792,61 @@ test("incorrect timeline review can be approved at zero credits", async () => {
 });
 
 test("business-event outbox is facilitator-readable and never client-writable", async () => {
-  await env.withSecurityRulesDisabled(async context => setDoc(doc(context.firestore(), "workshopTelemetry/protected"), {status:"pending"}));
+  await env.withSecurityRulesDisabled(async (context) =>
+    setDoc(doc(context.firestore(), "workshopTelemetry/protected"), {
+      status: "pending",
+    }),
+  );
   await assertFails(getDoc(doc(db(), "workshopTelemetry/protected")));
-  await assertFails(getDoc(doc(db("cap", "captain@example.com"), "workshopTelemetry/protected")));
-  const facilitatorDb=db("fac", "facilitator@example.com");
-  await assertSucceeds(getDoc(doc(facilitatorDb, "workshopTelemetry/protected")));
-  await assertFails(setDoc(doc(facilitatorDb, "workshopTelemetry/forged"), {status:"delivered"}));
+  await assertFails(
+    getDoc(
+      doc(db("cap", "captain@example.com"), "workshopTelemetry/protected"),
+    ),
+  );
+  const facilitatorDb = db("fac", "facilitator@example.com");
+  await assertSucceeds(
+    getDoc(doc(facilitatorDb, "workshopTelemetry/protected")),
+  );
+  await assertFails(
+    setDoc(doc(facilitatorDb, "workshopTelemetry/forged"), {
+      status: "delivered",
+    }),
+  );
+});
+
+test("atomic networking completion preserves rapid concurrent steps and rejects another student's edits", async () => {
+  const fac = db("fac", "facilitator@example.com");
+  await updateDoc(doc(fac, "sessions/TEST"), { networkingOpen: true });
+  const owner = db(),
+    ref = doc(owner, path("networking/coo"));
+  await Promise.all(
+    ["linkedin", "github", "x"].map((id) =>
+      setDoc(
+        ref,
+        {
+          teamId: "mumbai-1a",
+          region: "west",
+          completed: firestore.arrayUnion(id),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      ),
+    ),
+  );
+  assert.deepEqual(
+    new Set((await getDoc(ref)).data().completed),
+    new Set(["linkedin", "github", "x"]),
+  );
+  await setDoc(
+    ref,
+    { completed: firestore.arrayUnion("x"), updatedAt: serverTimestamp() },
+    { merge: true },
+  );
+  assert.equal((await getDoc(ref)).data().completed.length, 3);
+  await assertFails(
+    updateDoc(doc(db("cto"), path("networking/coo")), {
+      completed: firestore.arrayUnion("x"),
+      updatedAt: serverTimestamp(),
+    }),
+  );
 });

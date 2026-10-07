@@ -3,7 +3,7 @@ import AnswerSummary from "../../components/AnswerSummary";
 import { activityTitle } from "../../lib/presentation";
 import { useState } from "react";
 import { signOut } from "firebase/auth";
-import { doc, serverTimestamp, setDoc } from "../../lib/firestore";
+import { arrayUnion, doc, serverTimestamp, setDoc } from "../../lib/firestore";
 import { auth, db } from "../../firebase";
 import { useCollectionData, useDocData } from "../../lib/hooks";
 import {
@@ -78,12 +78,16 @@ export default function WorkshopHub({
   async function complete(id: string) {
     try {
       setStatus("Pending server confirmation…");
-      await setDoc(doc(db, `sessions/${sid}/networking/${uid}`), {
-        teamId: student.teamId,
-        region: TEAM_BY_ID[student.teamId].region,
-        completed: [...new Set([...(net?.completed ?? []), id])],
-        updatedAt: serverTimestamp(),
-      });
+      await setDoc(
+        doc(db, `sessions/${sid}/networking/${uid}`),
+        {
+          teamId: student.teamId,
+          region: TEAM_BY_ID[student.teamId].region,
+          completed: arrayUnion(id),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
       setStatus("Completion saved for captain review.");
     } catch (e) {
       setStatus((e as Error).message);
@@ -378,7 +382,10 @@ export default function WorkshopHub({
         </>
       )}
       {status && <p role="status">{status}</p>}
-      <button className="btn ghost sm" onClick={() => withRumAction("User Logout", () => signOut(auth))}>
+      <button
+        className="btn ghost sm"
+        onClick={() => withRumAction("User Logout", () => signOut(auth))}
+      >
         Sign out
       </button>
     </div>

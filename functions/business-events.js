@@ -38,6 +38,7 @@ export function workshopBusinessEvents({
   after,
   occurredAt,
   principal = {},
+  correlation = {},
 }) {
   const parts = path.split("/");
   if (parts[0] !== "sessions" || !/^[A-Z0-9-]{4,16}$/.test(parts[1] || ""))
@@ -48,7 +49,26 @@ export function workshopBusinessEvents({
     data = after || before || {},
     results = [];
   const change = !before ? "created" : !after ? "deleted" : "updated";
+  const auditHash = createHash("sha256")
+    .update("audit:" + String(sourceId || path))
+    .digest("hex");
+  const validHex = (value, size) =>
+    typeof value === "string" &&
+    new RegExp("^[0-9a-f]{" + size + "}$").test(value) &&
+    !/^0+$/.test(value);
   const common = {
+    trace_id: validHex(correlation.traceId, 32)
+      ? correlation.traceId
+      : validHex(data.traceId, 32)
+        ? data.traceId
+        : auditHash.slice(0, 32),
+    span_id: validHex(correlation.spanId, 16)
+      ? correlation.spanId
+      : auditHash.slice(32, 48),
+    "transaction.id": safeId(data.transactionId) || "audit-" + auditHash,
+    "correlation.origin": safeId(data.transactionId)
+      ? "backend-request"
+      : "firestore-audit",
     "event.provider": PROVIDER,
     "workshop.session.id": sid,
     "event.source": "firestore-commit",
@@ -318,7 +338,9 @@ export function retryDelay(attempts, status) {
 }
 export async function exportBusinessEvent(payload, token, request = fetch) {
   const response = await request(
-    "https://indiacs.live.dynatrace.com/api/v2/bizevents/ingest",
+    process.env.FUNCTIONS_EMULATOR === "true"
+      ? "http://127.0.0.1:8799/api/v2/bizevents/ingest"
+      : "https://indiacs.live.dynatrace.com/api/v2/bizevents/ingest",
     {
       method: "POST",
       headers: {

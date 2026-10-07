@@ -34,6 +34,11 @@ export default function StudioView(
   const sub = useDocData<Submission>(
     `sessions/${sid}/submissions/${submissionId(activity.id, student.teamId)}`,
   );
+  const frozenDesign = useDocData<{ locked?: boolean }>(
+    activity.id === "architecture"
+      ? `sessions/${sid}/designs/${student.teamId}`
+      : null,
+  );
   const workshop = useDocData<{ bingoCalled?: string[] }>(
     `sessions/${sid}/public/workshop`,
   );
@@ -54,7 +59,9 @@ export default function StudioView(
   const edit = (field: string, value: unknown) =>
     setDraft({ ...values, [field]: value });
   const open =
-    session.currentActivity === activity.id && session.state.phase === "open";
+    session.currentActivity === activity.id &&
+    session.state.phase === "open" &&
+    !(activity.id === "architecture" && frozenDesign?.locked);
   const canSubmit = open && student.role === "COO" && !sub?.locked;
   const order =
     (values.order as string[] | undefined) ??
@@ -64,6 +71,20 @@ export default function StudioView(
   const called = workshop?.bingoCalled ?? [];
   const bingo = bingoBoard(student.teamId);
   async function save() {
+    if (
+      activity.id === "architecture" &&
+      (["provider", "region", "flow", "reason"].some(
+        (field) =>
+          typeof values[field] !== "string" || !String(values[field]).trim(),
+      ) ||
+        !Array.isArray(values.components) ||
+        !values.components.length)
+    ) {
+      setStatus(
+        "Complete the cloud provider, region, components, request flow and design reasoning before submitting.",
+      );
+      return;
+    }
     setStatus("Pending server confirmation…");
     try {
       const data = {
@@ -151,6 +172,12 @@ export default function StudioView(
       )}
       {activity.id === "architecture" && (
         <div className="card stack">
+          {frozenDesign?.locked && (
+            <p className="pill ok">
+              Approved design frozen for Day 2. Ask your facilitator before
+              making changes.
+            </p>
+          )}
           <label className="field">
             Cloud provider
             <select

@@ -91,3 +91,21 @@ test("interaction listeners install once and send no button text or input values
   delete globalThis.location;
   delete globalThis.window;
 });
+
+test("every native browser BizEvent has a transaction identifier and supports real operation trace context", () => {
+  const sent = [];
+  globalThis.window = {
+    dynatrace: { sendBizEvent: (type, fields) => sent.push({ type, fields }) },
+  };
+  businessEvent("ui.check");
+  businessEvent("operation.check", {
+    "transaction.id": "test-operation",
+    trace_id: "a".repeat(32),
+    span_id: "b".repeat(16),
+  });
+  assert.ok(sent[0].fields["transaction.id"]);
+  assert.equal(sent[0].fields["correlation.origin"], "browser-event");
+  assert.equal(sent[1].fields["transaction.id"], "test-operation");
+  assert.equal(sent[1].fields.trace_id, "a".repeat(32));
+  assert.equal(sent[1].fields.span_id, "b".repeat(16));
+});

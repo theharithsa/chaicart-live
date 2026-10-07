@@ -115,3 +115,7 @@ Deploy the backend **before** the frontend: `npx firebase-tools deploy --project
 ## Workshop lifecycle audit and BizEvents
 
 See [Business observability](docs/BUSINESS-OBSERVABILITY.md) for client interactions, committed scoring, surveys, votes, retry delivery and the explicit workshop completion control. Canonical outcomes are exported by `chaicart-live-audit`; browser events are separately labeled client-observed.
+
+## Workshop rehearsal
+
+See [the test cases and rehearsal instructions](docs/WORKSHOP-REHEARSAL.md) for the isolated two-day browser simulation, permissions, scoring, offline recovery and operational checks. `npm run test:rehearsal` uses only `demo-chaicart` emulators and a local telemetry collector.

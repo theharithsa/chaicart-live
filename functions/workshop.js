@@ -83,6 +83,8 @@ export async function executeWorkshopAction(db, actor, data) {
       tx.create(base.collection("ledger").doc(), {
         actor: actor.uid,
         ...(actor.transactionId ? { transactionId: actor.transactionId } : {}),
+        ...(actor.traceId ? { traceId: actor.traceId } : {}),
+        ...(actor.spanId ? { spanId: actor.spanId } : {}),
         actorRole: role.facilitator ? "facilitator" : "captain",
         batch,
         teamId,
@@ -348,7 +350,17 @@ export const workshopAction = onCall(
     const run = () =>
       executeWorkshopAction(
         getFirestore(),
-        { uid: actor.uid, email: actor.token.email, transactionId },
+        {
+          uid: actor.uid,
+          email: actor.token.email,
+          transactionId,
+          traceId:
+            trace.getSpan(context.active())?.spanContext().traceId ||
+            client?.traceId,
+          spanId:
+            trace.getSpan(context.active())?.spanContext().spanId ||
+            client?.spanId,
+        },
         request.data,
       );
     if (process.env.FUNCTIONS_EMULATOR === "true") return run();

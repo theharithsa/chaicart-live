@@ -26,7 +26,7 @@ export default function Play() {
   const sid = storedSession();
   const user = useAuthUser();
 
-  const base = user && sid ? `sessions/${sid}` : null;
+  const base = isGoogleStudent(user) && sid ? `sessions/${sid}` : null;
   const student = useDocData<Student>(
     base && user ? `${base}/students/${user.uid}` : null,
   );

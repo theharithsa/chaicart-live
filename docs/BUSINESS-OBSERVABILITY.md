@@ -110,3 +110,11 @@ Validation: application build, lint, seven RUM tests, seventeen backend tests an
 | Performance | Bounded concurrency, batched retries, bounded metric dimensions |
 | Maintainability | Pure event catalog, documented source/authority and isolated tests |
 | Documentation | Completion steps, endpoint/scopes, retention, deduplication and verification limits |
+
+## Correlation guarantee
+
+Every newly generated canonical event includes `transaction.id`, `trace_id` and `span_id`. Committed callable ledger records retain the backend transaction and active trace/span context; the audit consumer continues that trace. Direct Firestore writes receive a real audit-consumer trace and a stable `audit-…` transaction identifier (`correlation.origin=firestore-audit`). This identifies the committed change without claiming a continuous browser request trace for Firebase SDK writes. Delivery attempts correlate by event and transaction IDs.
+
+Native browser events always have a transaction ID. Instrumented operation-completion events additionally carry their browser trace/span IDs. Browser observations and server-confirmed events remain separate authorities. Historical events already ingested without these fields are not rewritten.
+
+See [Workshop rehearsal](WORKSHOP-REHEARSAL.md) for feature coverage, safe test execution and remaining real-device checks.

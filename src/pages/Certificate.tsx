@@ -9,13 +9,19 @@ export default function Certificate() {
   const sid = storedSession();
   const user = useAuthUser();
   const student = useDocData<Student>(
-    user && sid ? `sessions/${sid}/students/${user.uid}` : null,
+    user && isGoogleStudent(user) && sid
+      ? `sessions/${sid}/students/${user.uid}`
+      : null,
   );
   const awards = useDocData<{
     awards: { uid: string; name: string; title: string }[];
-  }>(user && sid ? `sessions/${sid}/public/workshop` : null);
+  }>(
+    user && isGoogleStudent(user) && sid
+      ? `sessions/${sid}/public/workshop`
+      : null,
+  );
   const session = useDocData<SessionDoc>(
-    user && sid ? `sessions/${sid}` : null,
+    user && isGoogleStudent(user) && sid ? `sessions/${sid}` : null,
   );
 
   if (user !== undefined && !isGoogleStudent(user))

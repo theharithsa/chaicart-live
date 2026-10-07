@@ -12,6 +12,7 @@ function wrap<F extends (...args: any[]) => Promise<any>>(name: string, fn: F): 
 }
 export const getDoc = wrap("firestore.document.read", sdk.getDoc);
 export const getDocs = wrap("firestore.query.read", sdk.getDocs);
+export const getDocsFromServer = wrap("firestore.query.read", sdk.getDocsFromServer);
 export const setDoc = wrap("firestore.document.write", sdk.setDoc);
 export const updateDoc = wrap("firestore.document.update", sdk.updateDoc);
 export const deleteDoc = wrap("firestore.document.delete", sdk.deleteDoc);

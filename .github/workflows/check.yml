@@ -26,6 +26,20 @@ jobs:
       - run: npx --yes npm@10 ci --prefix functions
       - run: npm test --prefix functions
       - run: npx firebase-tools emulators:exec --project demo-chaicart --only firestore "node --test --test-concurrency=1 test/rules.test.mjs test/workshop-actions.test.mjs test/business-audit.test.mjs"
+  rehearsal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npx --yes npm@10 ci --prefix functions
       - run: npx playwright install --with-deps chromium
       - run: npm run test:rehearsal
       - uses: actions/upload-artifact@v4

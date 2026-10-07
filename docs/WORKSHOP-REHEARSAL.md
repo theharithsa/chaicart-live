@@ -76,4 +76,4 @@ Before doors open, use a real Google account on the hosted site, verify a captai
 - 10 browser/scoring unit tests and 18 backend tests passed.
 - Production build passed; lint passed with existing Fast Refresh development warnings.
 
-The rehearsal found and fixed anonymous-session loading, incomplete architecture feedback, concurrent networking steps, approval-loading controls and freezing already-awarded architecture. Recursive deletion is verified after asynchronous cleanup completes.
+The rehearsal found and fixed anonymous-session loading, incomplete architecture feedback, concurrent networking steps, approval-loading controls, freezing already-awarded architecture and stale recap response scoring. Recursive deletion is verified after asynchronous cleanup completes.

@@ -1,8 +1,16 @@
 import { workshopAction } from "../../lib/workshopActions";
 import { useState } from "react";
-import { doc, setDoc } from "../../lib/firestore";
+import {
+  collection,
+  doc,
+  getDocsFromServer,
+  query,
+  setDoc,
+  where,
+} from "../../lib/firestore";
 import { db } from "../../firebase";
 import type { QuizActivity } from "../../content/activities";
+import type { Submission } from "../../types";
 import { TEAMS } from "../../content/teams";
 import { useDocData } from "../../lib/hooks";
 import { applyCredits } from "../../lib/credits";
@@ -55,13 +63,20 @@ export default function QuizPanel({
   const go = (i: number) =>
     patchSession(sid, { "state.index": i, "state.phase": "open" });
 
-  function questionCredits(qi: number) {
+  async function questionCredits(qi: number) {
+    const confirmed = await getDocsFromServer(
+      query(
+        collection(db, `sessions/${sid}/submissions`),
+        where("activity", "==", activity.id),
+      ),
+    );
+    const answers = confirmed.docs.map((d) => d.data() as Submission);
     const answer = keys?.QUIZ_KEYS[activity.id]?.[qi]?.answer;
     return TEAMS.map((t) => ({
       teamId: t.id,
       delta:
         answer !== undefined &&
-        subs.some(
+        answers.some(
           (s) =>
             s.teamId === t.id &&
             (s.answers as Record<string, number> | undefined)?.[String(qi)] ===
@@ -99,7 +114,7 @@ export default function QuizPanel({
         key &&
         !ctx.applied[qKey(idx)]
       ) {
-        const changes = questionCredits(idx);
+        const changes = await questionCredits(idx);
         const total = changes.reduce((s, c) => s + c.delta, 0);
         const n = await applyCredits(
           sid,

@@ -104,7 +104,12 @@ export default function QuizView({
         })}
       </div>
       {error && <div className="error">{error}</div>}
-      {mine !== undefined && !revealed && (
+      {sending && (
+        <p className="muted small center">
+          Saving answer… wait for confirmation.
+        </p>
+      )}
+      {mine !== undefined && !revealed && !sending && (
         <p className="muted small center">
           Answer locked in. Wait for the reveal.
         </p>

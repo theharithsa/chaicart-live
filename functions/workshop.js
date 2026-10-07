@@ -54,6 +54,12 @@ export async function executeWorkshopAction(db, actor, data) {
         fail("permission-denied", "Only facilitators can delete sessions.");
       if (data.confirm !== sid)
         fail("invalid-argument", "Type the session code to confirm deletion.");
+      if (role.session.completedAt || role.session.learningArchiveRequired) {
+        const students = await tx.get(base.collection("students"));
+        const histories = await Promise.all(students.docs.map(student => tx.get(db.doc(`learningLearners/${student.id}/workshops/${sid}`))));
+        if(histories.some(record => !record.exists || !["completed","not-attended","revoked"].includes(record.data().status)))
+          fail("failed-precondition", "Verify attendance and publish permanent learner results in InspiredLearning before deleting this completed session.");
+      }
       tx.update(base, {
         deleting: true,
         currentActivity: null,

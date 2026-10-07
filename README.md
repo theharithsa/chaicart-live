@@ -119,3 +119,9 @@ See [Business observability](docs/BUSINESS-OBSERVABILITY.md) for client interact
 ## Workshop rehearsal
 
 See [the test cases and rehearsal instructions](docs/WORKSHOP-REHEARSAL.md) for the isolated two-day browser simulation, permissions, scoring, offline recovery and operational checks. `npm run test:rehearsal` uses only `demo-chaicart` emulators and a local telemetry collector.
+
+## Permanent learner records and certificates
+
+[InspiredLearning](https://inspiredlearning-vh.web.app) uses the same Google account as Live. Staff imports older registrations, verifies attendance, closes the workshop and publishes permanent results there. Completed participants receive 100 learning points once, separately from personal quiz credits and team scores, plus authenticated PDF certificates. The session-wide certificate toggle only shows the portal link; it does not certify attendance.
+
+Captains verify attendance within their region; facilitators publish, correct or revoke completion. Deleting a completed session requires every participant to have a reviewed permanent status; reopening does not bypass this check. Archived session codes cannot be reused. Learner records survive deletion of the Live session. This repository owns shared production Firestore rules/indexes; the private InspiredLearning repository owns its separate Hosting site and Functions codebase.

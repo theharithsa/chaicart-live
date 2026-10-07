@@ -281,3 +281,5 @@ test("delete requires facilitator and exact confirmation, and removes nested rec
   );
   assert.equal((await ref.collection("staff").get()).empty, true);
 });
+
+test('completed session cannot be deleted before permanent learner records are preserved',async()=>{const code='ARCHIVE-TEST',root=db.doc(`sessions/${code}`),history=db.doc(`learningLearners/archive-student/workshops/${code}`);await root.set({completedAt:new Date(),learningArchiveRequired:true});await root.collection('students').doc('archive-student').set({teamId:'mumbai-1a'});await assert.rejects(executeWorkshopAction(db,admin,{sid:code,action:'deleteSession',confirm:code}),/publish permanent learner results/);await root.update({completedAt:null});await assert.rejects(executeWorkshopAction(db,admin,{sid:code,action:'deleteSession',confirm:code}),/publish permanent learner results/);await history.set({status:'completed',personalCredits:100,teamCredits:1300});await executeWorkshopAction(db,admin,{sid:code,action:'deleteSession',confirm:code});assert.equal((await root.get()).exists,false);assert.equal((await history.get()).data().personalCredits,100);await db.recursiveDelete(history);});

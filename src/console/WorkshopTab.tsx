@@ -193,6 +193,11 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
         Freeze approved architecture for Day2
       </button>
       <div className="card stack">
+        <h3>Permanent learner records</h3>
+        <p>After closing, verify attendance in InspiredLearning and publish each learner’s results, learning points and downloadable certificate. Team credits remain separate from individual results.</p>
+        <a className="btn" href={`https://inspiredlearning-vh.web.app/#/staff?session=${encodeURIComponent(sid)}`} target="_blank" rel="noreferrer">Review attendance and publish learner records ↗</a>
+      </div>
+      <div className="card stack">
         <h3>Networking and certificates</h3>
         <button
           className="btn ghost"
@@ -219,7 +224,7 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
         >
           {session.certificatesIssued
             ? "Withdraw certificate release"
-            : "Issue participation certificates to registered students"}
+            : "Show certificate portal to students"}
         </button>
         <button
           className="btn ghost"
@@ -239,6 +244,7 @@ export default function WorkshopTab({ ctx }: { ctx: ConsoleCtx }) {
                   ? { completedAt: null }
                   : {
                       completedAt: serverTimestamp(),
+                      learningArchiveRequired: true,
                       currentActivity: null,
                       networkingOpen: false,
                       state: { ...session.state, phase: "locked" },

@@ -9,6 +9,16 @@ service cloud.firestore {
   match /workshopTelemetry/{id}{allow read:if facilitator();allow write:if false;}
   match /workshopContent/{id}{allow read:if facilitator();allow write:if false;}
   match /admins/{email}{allow read:if signedIn() && request.auth.token.email==email;allow write:if false;}
+  // InspiredLearning shares Auth, but learner records are strictly owner-scoped.
+  match /learningLearners/{uid}{
+   allow read:if google() && request.auth.uid==uid;
+   allow write:if false;
+   match /{document=**}{allow read:if google() && request.auth.uid==uid;allow write:if false;}
+  }
+  match /learningCertificates/{id}{allow read:if google() && resource.data.uid==request.auth.uid;allow write:if false;}
+  match /learningRequests/{id}{allow read:if facilitator() || (google() && resource.data.uid==request.auth.uid);allow write:if false;}
+  match /learningTelemetry/{id}{allow read:if facilitator();allow write:if false;}
+  match /learningEnrollments/{sid}{allow read:if facilitator();allow write:if false;}
   match /sessions/{sid}{
    function session(){return get(/databases/$(database)/documents/sessions/$(sid)).data;}
    function profile(){return get(/databases/$(database)/documents/sessions/$(sid)/students/$(request.auth.uid)).data;}
@@ -40,6 +50,7 @@ service cloud.firestore {
     allow update:if facilitator() || (google() && uid==request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','branch']) && request.resource.data.name is string && request.resource.data.name.size()<=60 && request.resource.data.branch is string && request.resource.data.branch.size()<=60);
     allow delete:if facilitator();
    }
+   match /learningAttendance/{uid}{allow read:if facilitator() || (google() && uid==request.auth.uid) || captainTeam(get(/databases/$(database)/documents/sessions/$(sid)/students/$(uid)).data.teamId);allow write:if false;}
    match /quizResults/{uid}{allow read:if facilitator() || (google() && uid==request.auth.uid) || captainTeam(get(/databases/$(database)/documents/sessions/$(sid)/students/$(uid)).data.teamId);allow write:if false;}
    match /awards/{id}{allow read:if (resource!=null && teamReader(resource.data.teamId)) || (resource==null && teamReader(id.split('__')[1]));allow delete:if facilitator();}
    match /ledger/{id}{allow read:if teamReader(resource.data.teamId);allow create:if facilitator();allow update,delete:if false;}

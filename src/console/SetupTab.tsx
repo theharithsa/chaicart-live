@@ -67,8 +67,10 @@ export default function SetupTab({
     await runTransaction(db, async (tx) => {
       const parent = doc(db, `sessions/${id}`);
       const existing = await tx.get(parent);
+      const learningHistory = await tx.get(doc(db, `learningEnrollments/${id}`));
       if (existing.exists())
         throw new Error(`Session ${id} already exists. Select it below.`);
+      if(learningHistory.exists())throw new Error("This session code has permanent learner records. Choose a new code.");
       const content = await Promise.all(
         ["keys", "activityKeys"].map((name) =>
           tx.get(doc(db, `workshopContent/${name}`)),

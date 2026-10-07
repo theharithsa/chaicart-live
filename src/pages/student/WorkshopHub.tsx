@@ -117,6 +117,11 @@ export default function WorkshopHub({
   }
   return (
     <div className="stack">
+      <div className="card stack">
+        <h3>Your learning account</h3>
+        <p>Keep your verified workshop history, personal results and downloadable certificates in InspiredLearning.</p>
+        <a className="btn ghost" href="https://inspiredlearning-vh.web.app" target="_blank" rel="noreferrer">Open InspiredLearning ↗</a>
+      </div>
       <nav className="tabs" aria-label="Workshop workspace">
         {["Agenda", "Team", "Networking", "Resources"].map((t) => (
           <button

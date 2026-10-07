@@ -1160,7 +1160,7 @@ test("certificate gating, service-model nested leaderboard, completion and reope
 }) => {
   const student = await actor(browser, "coo@example.invalid", "/certificate");
   await expect(
-    student.page.getByRole("heading", { name: "Certificate not issued yet" }),
+    student.page.getByRole("heading", { name: "Completion verification pending" }),
   ).toBeVisible();
   const fac = await actor(browser, adminEmail, "/console");
   await fac.page.evaluate(
@@ -1183,12 +1183,12 @@ test("certificate gating, service-model nested leaderboard, completion and reope
   await fac.page.getByRole("button", { name: "Workshop", exact: true }).click();
   await fac.page
     .getByRole("button", {
-      name: "Issue participation certificates to registered students",
+      name: "Show certificate portal to students",
       exact: true,
     })
     .click();
   await expect(
-    student.page.getByRole("heading", { name: "Certificate of Participation" }),
+    student.page.getByRole("heading", { name: "Completion verification pending" }),
   ).toBeVisible();
   await fac.page
     .getByRole("button", { name: "Mark workshop complete", exact: true })
@@ -1229,6 +1229,10 @@ test("certificate gating, service-model nested leaderboard, completion and reope
   await fac.page
     .getByRole("button", { name: "Permanently delete session" })
     .click();
+  await expect(fac.page.getByRole("status").filter({hasText:/Verify attendance and publish permanent learner results/})).toBeVisible();
+  const learners=await base().collection('students').get();
+  for(const learner of learners.docs)await db.doc(`learningLearners/${learner.id}/workshops/${sid}`).set({sid,uid:learner.id,status:'not-attended'});
+  await fac.page.getByRole('button',{name:'Permanently delete session'}).click();
   await expect.poll(async () => (await base().get()).exists).toBe(false);
   await expect
     .poll(async () => (await base().collection("students").get()).empty)
